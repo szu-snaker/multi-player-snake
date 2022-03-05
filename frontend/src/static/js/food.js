@@ -1,0 +1,36 @@
+import Resource from '@/static/js/Resource';
+function Food(x,y,width,height,img){
+    //食物的初始化
+    this.x = x || 0;
+    this.y = y || 0;
+    this.width = width || 30;
+    this.height = height || 30;
+    this.img = img || Resource.apple;//默认苹果   
+    this.div = null;
+}
+Food.prototype.initFood = function(map){
+    this.removeDiv();
+    let myFood = document.createElement("div");
+    this.div = myFood;//需要记录食物的div盒子，日后重新生成时需要清空
+    myFood.style.width = this.width + "px";
+    myFood.style.height = this.height + "px";
+    myFood.style.background = `url(${this.img}) no-repeat center`
+    myFood.style.backgroundSize = `${this.width}px ${this.height}px`;
+    myFood.style.position = "absolute";
+    this.x = Math.floor(Math.random()* (map.offsetWidth/this.width)) * this.width;
+    this.y = Math.floor(Math.random()* (map.offsetHeight/this.height)) * this.height;
+    myFood.style.left = this.x + "px";
+    myFood.style.top = this.y +"px";
+
+    map.appendChild(myFood);
+}
+
+Food.prototype.removeDiv = function(){
+    if(this.div){//如果先前存在
+        this.div.parentNode.removeChild(this.div);
+    }
+}
+
+
+
+export default Food
