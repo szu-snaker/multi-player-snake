@@ -4,35 +4,24 @@
 原生JS实现的贪吃蛇游戏，为了学习，也额外使用vue-cli3搭建项目
 
 #### 软件架构
-软件架构说明
+后端：Springboot
+前端：Vue3  
 
 
+#### 需实现内容
 
-#### 安装教程
+1. 登录即玩（不注册）? 
+2. 多人模式：创建房间--邀请玩家（是否在广域网内全局匹配？）--对局--是否记录？排行？
 
-1.  xxxx
-2.  xxxx
-3.  xxxx
+更多的：
+3. 单人模式？ 加入人机 ？是否分级？
+4. 死亡观战? 还是重新复活？
+5. 断线重连？
 
-#### 使用说明
+创意元素： 
+5. 食物是否可吃
+6. 速度如何调整
+7. 墙壁设置
 
-1.  xxxx
-2.  xxxx
-3.  xxxx
+#### 划分功能
 
-#### 参与贡献
-
-1.  Fork 本仓库
-2.  新建 Feat_xxx 分支
-3.  提交代码
-4.  新建 Pull Request
-
-
-#### 特技
-
-1.  使用 Readme\_XXX.md 来支持不同的语言，例如 Readme\_en.md, Readme\_zh.md
-2.  Gitee 官方博客 [blog.gitee.com](https://blog.gitee.com)
-3.  你可以 [https://gitee.com/explore](https://gitee.com/explore) 这个地址来了解 Gitee 上的优秀开源项目
-4.  [GVP](https://gitee.com/gvp) 全称是 Gitee 最有价值开源项目，是综合评定出的优秀开源项目
-5.  Gitee 官方提供的使用手册 [https://gitee.com/help](https://gitee.com/help)
-6.  Gitee 封面人物是一档用来展示 Gitee 会员风采的栏目 [https://gitee.com/gitee-stars/](https://gitee.com/gitee-stars/)
