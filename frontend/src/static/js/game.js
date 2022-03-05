@@ -56,11 +56,11 @@ Game.prototype.init = function () {
 };
 
 // 连接服务器端
-Game.prototype.connect = function () {
+Game.prototype.connect = function (id) {
   if(this.socket){
     this.socket.close();    
   }
-  this.socket = new WebSocket(Resource.socketUrl);
+  this.socket = new WebSocket(Resource.SocketBaseUrl + id);
   this.socket.onopen = (e) => {
     this.socket.send("hello~", e);
   };

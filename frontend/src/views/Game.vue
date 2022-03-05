@@ -31,7 +31,6 @@ export default {
       this.game.bindKey();
   },
   methods:{
-
     translateTime(){
       let minutes = parseInt(this.time/60);
       let seconds = parseInt(this.time%60);
