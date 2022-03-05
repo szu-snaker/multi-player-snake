@@ -10,7 +10,7 @@ function Food(x,y,width,height,img){
     this.div = null;
 }
 // 初始化新食物
-Food.prototype.initFood = function(map){
+Food.prototype.initFood = function(map,xx,yy){
     this.removeDiv();
     let myFood = document.createElement("div");
     this.div = myFood;//需要记录食物的div盒子，日后重新生成时需要清空
@@ -19,8 +19,8 @@ Food.prototype.initFood = function(map){
     myFood.style.background = `url(${this.img}) no-repeat center`
     myFood.style.backgroundSize = `${this.width}px ${this.height}px`;
     myFood.style.position = "absolute";
-    this.x = Math.floor(Math.random()* (map.offsetWidth/this.width)) * this.width;
-    this.y = Math.floor(Math.random()* (map.offsetHeight/this.height)) * this.height;
+    this.x = xx || Math.floor(Math.random()* (map.offsetWidth/this.width)) * this.width;
+    this.y = yy || Math.floor(Math.random()* (map.offsetHeight/this.height)) * this.height;
     myFood.style.left = this.x + "px";
     myFood.style.top = this.y +"px";
 

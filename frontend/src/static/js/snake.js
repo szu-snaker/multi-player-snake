@@ -1,28 +1,30 @@
 import Resource from '@/static/js/Resource';
 // 蛇的初始化
-function Snake(width,height,direction){
-    //每部分宽高
-    this.width = width || 30;
-    this.height = height || 30;
+function Snake(id,xx,yy,width,height,direction){
+    this.id = id || Math.random()*1000;//id 
+
+    this.width = width || 30;//渲染宽度
+    this.height = height || 30;//渲染高度
     this.elements = [];//渲染的 div元素
+    
     //方向
     this.direction = direction || "right";
 
     // 记住蛇默认的状态，吃完食物的时候就要加一个
     this.body = [
         {
-            x:3,
-            y:0,
+            x:xx||3,
+            y:yy||0,
             img:Resource.snake.right ,
         },
         {
-            x:2,
-            y:0,
+            x:xx-1||2,
+            y:yy||0,
             img:Resource.snake.body,
         },
         {
-            x:1,
-            y:0,
+            x:xx-2||1,
+            y:yy||0,
             img:Resource.snake.body,
         },
     ];
@@ -47,7 +49,7 @@ Snake.prototype.initSnake = function(map){
     });
 }
 // 蛇的移动 
-Snake.prototype.move = function(food,map){
+Snake.prototype.move = function(food,map,snakes){
     // 改变小蛇的身体，让蛇跑起来
     //思路：后一个元素 到 前一个元素
     //蛇头 单独根据方向处理
@@ -77,19 +79,39 @@ Snake.prototype.move = function(food,map){
             break;
         }
     }
+
+    if(this.judgeSelf()){//判断是否吃到自己
+        return 0;
+    }
+    if(this.judgeWall(map)){//判断是否撞到墙上
+        return 0;
+    }
+    if(this.judgeSnakes(snakes)){//判断是否迟到其他的蛇
+        return 0;
+    }
     if(this.judgeFood(food,map)){//判断是否吃到食物
         this.addBody();
         food.initFood(map);
+        return 2;
     }
-    if(this.judgeSelf()){//判断是否吃到自己
-        return false;
-    }
-    if(this.judgeWall(map)){//判断是否撞到墙上
-        return false;
-    }
-    return true;
-    // console.log("moving",food,map);
+    return 1;
 }
+
+// 判断是否吃到其他的蛇
+Snake.prototype.judgeSnakes = function(snakes){
+    let head = this.body[0];
+    console.log(snakes);
+    for(let i=0;i<snakes.length;i++){
+        for(let j=0;j<snakes[i].body.length;j++){
+            let part = snakes[i].body[j];
+            if(head.x == part.x && head.y == part.y){
+                return true;
+            }    
+        }
+    }
+    return false;
+}
+
 
 // 判断是否吃到食物
 Snake.prototype.judgeFood = function(food){
