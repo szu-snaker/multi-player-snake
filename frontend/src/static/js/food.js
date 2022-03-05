@@ -1,6 +1,7 @@
 import Resource from '@/static/js/Resource';
+
+//食物的初始化
 function Food(x,y,width,height,img){
-    //食物的初始化
     this.x = x || 0;
     this.y = y || 0;
     this.width = width || 30;
@@ -8,6 +9,7 @@ function Food(x,y,width,height,img){
     this.img = img || Resource.apple;//默认苹果   
     this.div = null;
 }
+// 初始化新食物
 Food.prototype.initFood = function(map){
     this.removeDiv();
     let myFood = document.createElement("div");
@@ -24,13 +26,11 @@ Food.prototype.initFood = function(map){
 
     map.appendChild(myFood);
 }
-
+// 移除食物
 Food.prototype.removeDiv = function(){
     if(this.div){//如果先前存在
         this.div.parentNode.removeChild(this.div);
     }
 }
-
-
 
 export default Food

@@ -1,7 +1,5 @@
 import Food from "@/static/js/food.js";
 import Snake from "@/static/js/snake.js";
-//定义一个变量保存game 的实例对象
-
 //游戏构造函数
 function Game(map, timer = null) {
   this.food = new Food();
@@ -53,6 +51,7 @@ Game.prototype.init = function () {
   this.snake.initSnake(this.map);
   this.runSnake(this.food, this.map);
 };
+// 开始运行
 Game.prototype.runSnake = function (food, map) {
   this.timeId = setInterval(() => {
     if (this.snake.move(food, map)) {
@@ -64,10 +63,11 @@ Game.prototype.runSnake = function (food, map) {
     }
   }, this.speed);
 };
+// 绑定键盘事件
 Game.prototype.bindKey = function () {
   document.addEventListener("keydown", this.keyBoardListener, false);
 };
-
+// 改变游戏速度
 Game.prototype.changeSpeed = function (flag) {
   this.speed += flag * 20;
   if (this.speed < 100 || this.speed > 400) {
@@ -87,7 +87,7 @@ Game.prototype.changeSpeed = function (flag) {
     }, this.speed);
   }
 };
-
+// 清除游戏：蛇+水果+键盘绑定监听器
 Game.prototype.clearGame = function () {
   this.snake.removeDiv();
   this.food.removeDiv();
