@@ -6,7 +6,6 @@
     <button class="button add-button" @click="addMore">加多一条</button>
     <button class="button increase-button" @click="increaseSpeed">最新加速</button>
     <button class="button decrease-button" @click="decreaseSpeed">最新减速</button>
-    
   </div>
 </template>
 

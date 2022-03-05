@@ -1,4 +1,5 @@
 import Resource from '@/static/js/Resource';
+// 蛇的初始化
 function Snake(width,height,direction){
     //每部分宽高
     this.width = width || 30;
@@ -26,6 +27,7 @@ function Snake(width,height,direction){
         },
     ];
 }
+// 构造新的蛇HTML元素
 Snake.prototype.initSnake = function(map){
     
     //循环创建蛇头和蛇身
@@ -44,7 +46,7 @@ Snake.prototype.initSnake = function(map){
         this.elements.push(mySnake);
     });
 }
-// 移动方法 
+// 蛇的移动 
 Snake.prototype.move = function(food,map){
     // 改变小蛇的身体，让蛇跑起来
     //思路：后一个元素 到 前一个元素
@@ -96,7 +98,7 @@ Snake.prototype.judgeFood = function(food){
     }
     return false;
 }
-
+// 判断是否吃到自己
 Snake.prototype.judgeSelf = function(){
     let head = this.body[0];
     for(let i=4;i<this.body.length;i++){
@@ -107,7 +109,7 @@ Snake.prototype.judgeSelf = function(){
     }
     return false;
 }
-
+// 身体多一截
 Snake.prototype.addBody = function(){
     let last = this.body[this.body.length-1];
     this.body.push({
@@ -140,7 +142,7 @@ Snake.prototype.judgeWall = function(map){
     return false;
 }
 
-
+// 删除蛇元素
 Snake.prototype.removeDiv = function(){
     for(let i =0;i<this.elements.length;i++){
         this.elements[i].parentNode.removeChild(this.elements[i]);
