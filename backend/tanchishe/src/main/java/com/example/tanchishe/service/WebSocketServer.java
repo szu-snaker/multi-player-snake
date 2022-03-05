@@ -35,9 +35,6 @@ public class WebSocketServer {
     // 接收userId
     private String userId;
 
-    // 对应的食物
-    private Food food;
-
     // 匹配对方玩家ID
     private String rivalId;
 
@@ -94,7 +91,11 @@ public class WebSocketServer {
      *	@return null
      **/
     @OnClose
-    public void onClose() {
+    public void onClose() throws IOException {
+        if(rivalId != null){
+            webSocketMap.get(rivalId).rivalId = null;
+            webSocketMap.get(rivalId).sendMessage("对手断开连接");
+        }
         if (webSocketMap.containsKey(userId)) {
             webSocketMap.remove(userId);
         }
@@ -118,15 +119,33 @@ public class WebSocketServer {
                 if(order.equals("find")){
                     findPlayer();
                 }else if(order.equals("eat")){
-                    food = buildFood();
-                    JSONObject jsonObject1 = new JSONObject();
-                    JSONObject jsonObject2 = new JSONObject();
-                    jsonObject1.put("newFood", food);
-                    jsonObject2.put("rivalNewFood", food);
-                    sendMessage(jsonObject1.toJSONString());
-                    webSocketMap.get(rivalId).sendMessage(jsonObject1.toJSONString());
+                    if(rivalId != null) {
+                        // 生成新的食物
+                        JSONObject jsonObject1 = new JSONObject();
+                        jsonObject1.put("food", buildFood());
+                        sendMessage(jsonObject1.toJSONString());
+                        webSocketMap.get(rivalId).sendMessage(jsonObject1.toJSONString());
+                    }else{
+                        sendMessage("警告!!!!");
+                    }
+                }else if(order.equals("die")){
+                    if(rivalId != null) {
+                        JSONObject jsonObject1 = new JSONObject();
+                        jsonObject1.put("gameover", "gameover");
+                        webSocketMap.get(rivalId).sendMessage(jsonObject1.toJSONString());
+                        webSocketMap.get(rivalId).rivalId = null;
+                        rivalId = null;
+                    }else{
+                        sendMessage("警告!!!!");
+                    }
                 }else{
-                    changeDirection(order);
+                    if(rivalId != null) {
+                        JSONObject jsonObject1 = new JSONObject();
+                        jsonObject1.put("direction", order);
+                        changeDirection(jsonObject1.toJSONString());
+                    }else{
+                        sendMessage("警告!!!!");
+                    }
                 }
             } catch (Exception e) {
                 e.printStackTrace();
@@ -144,7 +163,6 @@ public class WebSocketServer {
      **/
     @OnError
     public void onError(Session session, Throwable error) {
-        System.out.println("用户错误:" + this.userId + ",原因:" + error.getMessage());
         error.printStackTrace();
     }
 
@@ -175,16 +193,14 @@ public class WebSocketServer {
                 rivalId = ready;
                 ready = "";
                 webSocketMap.get(rivalId).rivalId = userId;
-                JSONObject jsonObject1 = new JSONObject();
-                JSONObject jsonObject2 = new JSONObject();
-                jsonObject1.put("order", "start");
-                jsonObject2.put("order", "start");
-                food = buildFood();
-                webSocketMap.get(rivalId).food = buildFood();
-                jsonObject1.put("food", food);
-                jsonObject2.put("food", webSocketMap.get(rivalId).food);
-                sendMessage(jsonObject1.toJSONString());
-                webSocketMap.get(rivalId).sendMessage(jsonObject2.toJSONString());
+                JSONObject jsonObject = new JSONObject();
+                // 游戏开始order
+                jsonObject.put("order", "start");
+                // 蛇的食物
+                jsonObject.put("food", buildFood());
+                // 推送给客户端
+                sendMessage(jsonObject.toJSONString());
+                webSocketMap.get(rivalId).sendMessage(jsonObject.toJSONString());
             }
         }
     }
