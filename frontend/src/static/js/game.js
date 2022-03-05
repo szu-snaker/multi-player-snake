@@ -1,4 +1,4 @@
-import Resource from '@/static/js/Resource';
+import Resource from "@/static/js/Resource";
 
 import Food from "@/static/js/food.js";
 import Snake from "@/static/js/snake.js";
@@ -50,23 +50,31 @@ function Game(map, timer = null) {
 
 // 初始化游戏
 Game.prototype.init = function () {
-  this.food.initFood(this.map);
   this.snake.initSnake(this.map);
   this.loop(this.food, this.map);
+  this.bindKey();
 };
 
 // 连接服务器端
 Game.prototype.connect = function (id) {
-  if(this.socket){
-    this.socket.close();    
+  if (this.socket) {
+    this.socket.close();
   }
-  this.socket = new WebSocket(Resource.SocketBaseUrl + id);
-  this.socket.onopen = (e) => {
-    this.socket.send("hello~", e);
+  this.socket = new WebSocket(Resource.SocketBaseUrl + "/" + id);
+  this.socket.onopen = () => {
+    console.log(id + "is connect");
+    this.socket.send(JSON.stringify({ order: "find" }));
   };
   this.socket.onmessage = function (data) {
     console.log("Message from server:", data);
-    data = JSON.parse(data);
+    data = JSON.parse(data.data);
+    console.log(data);
+    // 此处解析并处理对应的数据
+    if (Object.prototype.hasOwnProperty.call(data, "food")) {
+      console.log("is Food")
+      this.food.initFood(this.map,data.food.x,data.food.y);
+    }
+
   };
   this.socket.onclose = function (e) {
     console.log("socket close", e);
@@ -74,29 +82,28 @@ Game.prototype.connect = function (id) {
   this.socket.onerror = function (err) {
     console.log("socket error: ", err);
   };
-  this.socket.send(JSON.stringify({order:'find'}));
 };
 
 // 新增一条蛇
 Game.prototype.addSnake = function (snake) {
   this.snakes.push(snake);
 };
-
-Game.prototype.updateSnake = function (snake, snakes, i) {
+// 更新小蛇
+Game.prototype.updateSnake = function (snake, snakes, i = null) {
   if (snake.move(this.food, this.map, snakes) > 0) {
     snake.initSnake(this.map);
     return true;
   } else {
-    if (i) {
-      this.snakes.splice(i, 1);
-    } else {
-      snake.removeDiv();
-      snake = null;
+    snake.removeDiv();
+    snake = null;
+    if (i != null) {
+      this.snakes[i] = this.snakes[this.snakes.length - 1];
+      this.snakes.length--;
     }
     return false;
   }
 };
-
+// 游戏循环
 Game.prototype.loop = function () {
   this.loopTimer = setInterval(() => {
     if (this.snakes.length == 0 && this.snake == null) {
@@ -110,12 +117,13 @@ Game.prototype.loop = function () {
       }
       // 别人的蛇
       for (let i = 0; i < this.snakes.length; i++) {
+        // console.log("update another snake");
         let temp = this.snake
           ? [this.snake]
           : []
               .concat(this.snakes.slice(0, i))
               .concat(this.snakes.slice(i + 1, this.snakes.length));
-        if (!this.updateSnake(this.snakes[i], temp, i)) {
+        if (this.updateSnake(this.snakes[i], temp, i) == false) {
           i--;
         }
       }

@@ -5,7 +5,6 @@
     </div>
 </template>
 <script>
-import Game from "../static/js/game";
 
 export default {
     data(){
@@ -15,7 +14,7 @@ export default {
     },
     methods: {
         createRoom(){
-            this.$router.push("/game/"+number);
+            this.$router.push("/game/"+this.number);
         }
     },
 }

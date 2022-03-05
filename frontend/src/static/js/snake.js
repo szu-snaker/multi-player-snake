@@ -91,7 +91,7 @@ Snake.prototype.move = function(food,map,snakes){
     }
     if(this.judgeFood(food,map)){//判断是否吃到食物
         this.addBody();
-        food.initFood(map);
+        // food.initFood(map);
         return 2;
     }
     return 1;
@@ -100,7 +100,7 @@ Snake.prototype.move = function(food,map,snakes){
 // 判断是否吃到其他的蛇
 Snake.prototype.judgeSnakes = function(snakes){
     let head = this.body[0];
-    console.log(snakes);
+    // console.log(snakes);
     for(let i=0;i<snakes.length;i++){
         for(let j=0;j<snakes[i].body.length;j++){
             let part = snakes[i].body[j];
@@ -146,19 +146,19 @@ Snake.prototype.addBody = function(){
 // 基于map的宽高来判断是否冲出右下方墙壁
 Snake.prototype.judgeWall = function(map){
     if(this.body[0].x * this.width   >= map.offsetWidth ){//右侧墙壁
-        console.log(this.body[0].x , map.offsetWidth,"right boom~");
+        // console.log(this.body[0].x , map.offsetWidth,"right boom~");
         return true;
     }
     else if( this.body[0].y * this.height >= map.offsetHeight ){//下方墙壁
-        console.log(this.body[0].y  , map.offsetWidth," downboom~");
+        // console.log(this.body[0].y  , map.offsetWidth," downboom~");
         return true;
     }
     else if(this.body[0].x <0 ){//左侧墙壁
-        console.log(this.body[0].x ,"left boom~");
+        // console.log(this.body[0].x ,"left boom~");
         return true;
     }
     else if(this.body[0].y <0 ){//上方墙壁
-        console.log(this.body[0].y ,"up boom~");
+        // console.log(this.body[0].y ,"up boom~");
         return true;
     }
     return false;

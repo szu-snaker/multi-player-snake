@@ -10,7 +10,8 @@ const Resource = {
     },
     // 水果图片资源
     apple:'https://source.acexy.cn/view/X9ARoRw',
-    SocketBaseUrl:'ws://121.40.165.18:8800',
+    // 基础WebsocketURL
+    SocketBaseUrl:'ws://127.0.0.1:9000/ws',
 }
 
 export default Resource; 

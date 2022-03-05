@@ -28,7 +28,8 @@ export default {
       let map = document.getElementById("map");
       this.game = new Game(map,timer);
       this.game.init();
-      this.game.bindKey();
+      this.game.connect(this.$route.params.id)
+      console.log("id"+this.$route.params.id);
   },
   methods:{
     translateTime(){
