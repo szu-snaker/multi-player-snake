@@ -37,6 +37,7 @@ export default {
       let seconds = parseInt(this.time%60);
       return ("0"+minutes).slice(-2) + ":" +  ("0"+seconds).slice(-2) ;
     },
+    
     // increaseSpeed(){
     //   this.game.changeSpeed(-1);
     // },
@@ -47,8 +48,10 @@ export default {
     //   this.game.clearGame();
     //   this.addMore();
     // },
+
     addMore(){
       this.game.addSnake(new Snake());
+      
       // this.game = null;
       // this.time = 0;
       // let timer = setInterval(()=>{
@@ -57,6 +60,7 @@ export default {
       // this.game = new Game(this.$refs.map,timer);
       // this.game.init();
       // this.game.bindKey();
+      
     }
   }
 }

@@ -1,0 +1,53 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Document</title>
+</head>
+
+<body>
+    <div>
+        <input type="text" id="id">
+        <button onclick="handleConnect()">connect</button>
+        <p id="connect">connect:</p>
+        <p id="onopen">onopen:</p>
+        <p id="onmessage">onmessage:</p>
+        <p id="onclose">onclose:</p>
+        <p id="onerror">onerror:</p>
+
+    </div>
+    <script>
+        function $(id) {
+            return document.getElementById(id);
+        }
+
+        function handleConnect() {
+            let userId = $("id").value;
+            var socker = new WebSocket("ws://127.0.0.1:9000/ws/"+userId);
+            $("connect").innerHTML += "<br>ws://127.0.0.1:9000/ws/"+userId;
+            socker.onopen = function () {
+                $('onopen').innerHTML += "<br>  (" +userId +"open)  ";
+                socker.send(JSON.stringify({
+                    order: 'find'
+                }));
+            }
+            socker.onmessage = function (message) {
+                $('onmessage').innerHTML += "<br> " + userId+ "on onmessage:" + JSON.stringify(message);
+            }
+            socker.onclose = function () {
+                $('onclose').innerHTML += "<br>"+ userId+ "on onclose";
+
+            }
+            socker.onerror = function () {
+                $('onerror').innerHTML += "<br>"+ userId+"on onerror";
+
+            }
+
+        }
+    </script>
+</body>
+
+</html>
