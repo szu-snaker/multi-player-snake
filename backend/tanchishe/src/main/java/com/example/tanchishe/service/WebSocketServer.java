@@ -74,6 +74,7 @@ public class WebSocketServer {
     public void onOpen(Session session, @PathParam("userId") String userId) {
         this.session = session;
         this.userId = userId;
+        System.out.println("open connection:"+userId);
         // 将用户ID和它对应的连接存储到map中
         if (webSocketMap.containsKey(userId)) {
             webSocketMap.remove(userId);
@@ -112,6 +113,7 @@ public class WebSocketServer {
     public void onMessage(String message, Session session) {
         if (StrUtil.isNotBlank(message)) {
             try {
+                System.out.println("onmessage:"+message);
                 // 存储json信息
                 JSONObject jsonObject = JSONObject.parseObject(message);
                 // 获取指令
@@ -189,7 +191,8 @@ public class WebSocketServer {
         synchronized(ready){
             if(ready.equals("")){
                 ready = userId;
-            }else{
+            }
+            else{
                 rivalId = ready;
                 ready = "";
                 webSocketMap.get(rivalId).rivalId = userId;
@@ -200,6 +203,7 @@ public class WebSocketServer {
                 jsonObject.put("food", buildFood());
                 // 推送给客户端
                 sendMessage(jsonObject.toJSONString());
+                System.out.println("sendMessage"+jsonObject.toJSONString());
                 webSocketMap.get(rivalId).sendMessage(jsonObject.toJSONString());
             }
         }
