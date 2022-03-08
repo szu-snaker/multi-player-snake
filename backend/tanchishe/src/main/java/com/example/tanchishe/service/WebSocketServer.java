@@ -35,46 +35,50 @@ public class WebSocketServer {
     // 接收userId
     private String userId;
 
-    // 匹配对方玩家ID
-    private String rivalId;
+    // 游戏
+    private GameServer gameServer;
+
+    // 几号蛇
+    private int snakeId;
 
     /**
-     *	连接建立成功调用的方法
-     *	@Author: pjj
-     *	@Param: session 与客户端的连接
-     *	@Param: userId 用户ID
-     *	@Date: 2022/03/05
-     *	@return null
+     * 获取所有的连接
+     *
+     * @Author: pjj
+     * @Param: null
+     * @Date: 2022/03/05
+     * @return: getWebSocketMap所有与客户端的连接
      **/
     public static ConcurrentHashMap<String, WebSocketServer> getWebSocketMap() {
         return webSocketMap;
     }
 
     /**
-     *	连接建立成功调用的方法
-     *	@Author: pjj
-     *	@Param: session 与客户端的连接
-     *	@Param: userId 用户ID
-     *	@Date: 2022/03/05
-     *	@return null
+     * 设置所有的连接
+     *
+     * @Author: pjj
+     * @Param: webSocketMap 所有与客户端的连接
+     * @Date: 2022/03/05
+     * @return: null
      **/
     public static void setWebSocketMap(ConcurrentHashMap<String, WebSocketServer> webSocketMap) {
         WebSocketServer.webSocketMap = webSocketMap;
     }
 
     /**
-     *	连接建立成功调用的方法
-     *	@Author: pjj
-     *	@Param: session 与客户端的连接
-     *	@Param: userId 用户ID
-     *	@Date: 2022/03/05
-     *	@return null
+     * 连接建立成功调用的方法
+     *
+     * @Author: pjj
+     * @Param: session 与客户端的连接
+     * @Param: userId 用户ID
+     * @Date: 2022/03/05
+     * @return: null
      **/
     @OnOpen
     public void onOpen(Session session, @PathParam("userId") String userId) {
         this.session = session;
         this.userId = userId;
-        System.out.println("open connection:"+userId);
+        System.out.println("open connection:" + userId);
         // 将用户ID和它对应的连接存储到map中
         if (webSocketMap.containsKey(userId)) {
             webSocketMap.remove(userId);
@@ -85,68 +89,49 @@ public class WebSocketServer {
     }
 
     /**
-     *	连接关闭调用的方法
-     *	@Author: pjj
-     *	@Param: null
-     *	@Date: 2022/03/05
-     *	@return null
+     * 连接关闭调用的方法
+     *
+     * @Author: pjj
+     * @Param: null
+     * @Date: 2022/03/05
+     * @return: null
      **/
     @OnClose
     public void onClose() throws IOException {
-        if(rivalId != null){
-            webSocketMap.get(rivalId).rivalId = null;
-            webSocketMap.get(rivalId).sendMessage("对手断开连接");
-        }
+        gameServer.gameStop(snakeId);
         if (webSocketMap.containsKey(userId)) {
             webSocketMap.remove(userId);
         }
     }
 
     /**
-     *	收到客户端消息后调用的方法
-     *	@Author: pjj
-     *	@Param: message 客户端发送过来的消息
-     *	@Date: 2022/03/05
-     *	@return null
+     * 收到客户端消息后调用的方法
+     *
+     * @Author: pjj
+     * @Param: message 客户端发送过来的消息
+     * @Date: 2022/03/05
+     * @return: null
      **/
     @OnMessage
     public void onMessage(String message, Session session) {
         if (StrUtil.isNotBlank(message)) {
             try {
-                System.out.println("onmessage:"+message);
+                System.out.println("onmessage:" + message);
                 // 存储json信息
                 JSONObject jsonObject = JSONObject.parseObject(message);
                 // 获取指令
                 String order = jsonObject.getString("order");
-                if(order.equals("find")){
+                if (order.equals("find")) {
                     findPlayer();
-                }else if(order.equals("eat")){
-                    if(rivalId != null) {
-                        // 生成新的食物
-                        JSONObject jsonObject1 = new JSONObject();
-                        jsonObject1.put("food", buildFood());
-                        sendMessage(jsonObject1.toJSONString());
-                        webSocketMap.get(rivalId).sendMessage(jsonObject1.toJSONString());
-                    }else{
-                        sendMessage("警告!!!!");
-                    }
-                }else if(order.equals("die")){
-                    if(rivalId != null) {
-                        JSONObject jsonObject1 = new JSONObject();
-                        jsonObject1.put("gameover", "gameover");
-                        webSocketMap.get(rivalId).sendMessage(jsonObject1.toJSONString());
-                        webSocketMap.get(rivalId).rivalId = null;
-                        rivalId = null;
-                    }else{
-                        sendMessage("警告!!!!");
-                    }
-                }else{
-                    if(rivalId != null) {
-                        JSONObject jsonObject1 = new JSONObject();
-                        jsonObject1.put("direction", order);
-                        changeDirection(jsonObject1.toJSONString());
-                    }else{
-                        sendMessage("警告!!!!");
+                } else {
+                    if (order.equals("left")) {
+                        gameServer.setSnakeDirection(snakeId, 3);
+                    } else if (order.equals("right")) {
+                        gameServer.setSnakeDirection(snakeId, 1);
+                    } else if (order.equals("top")) {
+                        gameServer.setSnakeDirection(snakeId, 0);
+                    } else if (order.equals("down")) {
+                        gameServer.setSnakeDirection(snakeId, 2);
                     }
                 }
             } catch (Exception e) {
@@ -156,12 +141,13 @@ public class WebSocketServer {
     }
 
     /**
-     *	收到客户端消息后调用的方法
-     *	@Author: pjj
-     *	@Param: session 连接
-     *  @Parm: 	error 错误
-     *	@Date: 2022/03/05
-     *	@return null
+     * 收到客户端消息后调用的方法
+     *
+     * @Author: pjj
+     * @Param: session 连接
+     * @Parm: error 错误
+     * @Date: 2022/03/05
+     * @return: null
      **/
     @OnError
     public void onError(Session session, Throwable error) {
@@ -169,69 +155,49 @@ public class WebSocketServer {
     }
 
     /**
-     *	实现服务器主动推送
-     *	@Author: pjj
-     *	@Param: message 推送信息
-     *	@Date: 2022/03/05
-     *	@return null
+     * 实现服务器主动推送
+     *
+     * @Author: pjj
+     * @Param: message 推送信息
+     * @Date: 2022/03/05
+     * @return: null
      **/
     public void sendMessage(String message) throws IOException {
         this.session.getBasicRemote().sendText(message);
     }
 
     /**
-     *	匹配对手
-     *	@Author: pjj
-     *	@Param: null
-     *	@Date: 2022/03/05
-     *	@return null
+     * 匹配对手
+     *
+     * @Author: pjj
+     * @Param: null
+     * @Date: 2022/03/05
+     * @return: null
      **/
     public void findPlayer() throws IOException, InterruptedException {
         // 如果当前没有其他玩家进行匹配则进入等待
-        synchronized(ready){
-            if(ready.equals("")){
+        String rivalId = "";
+        synchronized (ready) {
+            if (ready.equals("")) {
                 ready = userId;
-            }
-            else{
+                return;
+            } else {
                 rivalId = ready;
                 ready = "";
-                webSocketMap.get(rivalId).rivalId = userId;
-                JSONObject jsonObject = new JSONObject();
-                // 游戏开始order
-                jsonObject.put("order", "start");
-                // 蛇的食物
-                jsonObject.put("food", buildFood());
-                // 推送给客户端
-                sendMessage(jsonObject.toJSONString());
-                System.out.println("sendMessage"+jsonObject.toJSONString());
-                webSocketMap.get(rivalId).sendMessage(jsonObject.toJSONString());
             }
         }
-    }
-
-    /**
-     *	告诉对手自己改变了方向
-     *	@Author: pjj
-     *	@Param: direction 改变后的方向
-     *	@Date: 2022/03/05
-     *	@return null
-     **/
-    public void changeDirection(String direction) throws IOException {
-        webSocketMap.get(rivalId).sendMessage(direction);
-    }
-
-    /**
-     *	随机生成食物
-     *	@Author: pjj
-     *	@Param: null
-     *	@Date: 2022/03/05
-     *	@return null
-     **/
-    public Food buildFood() throws IOException {
-        Random random = new Random();
-        int x = random.nextInt(25);
-        int y = random.nextInt(19);
-        return new Food(x, y);
+        JSONObject jsonObject = new JSONObject();
+        // 游戏准备order
+        jsonObject.put("order", "ready");
+        Thread.sleep(1000);
+        // 游戏初始化
+        gameServer = new GameServer(webSocketMap.get(rivalId).session, this.session);
+        webSocketMap.get(rivalId).gameServer = gameServer;
+        snakeId = 1;
+        webSocketMap.get(rivalId).snakeId = 0;
+        Thread.sleep(3000);
+        // 游戏开始
+        gameServer.run();
     }
 
 }

@@ -1,9 +1,14 @@
 package com.example.tanchishe.bean;
 
-
+/**
+ * @Author: pjj
+ * @Classname: Food
+ * @Date: 2022/03/08
+ * @Description: 食物对象
+ */
 public class Food {
-    private int x;
-    private int y;
+    private int x; // 食物的x坐标
+    private int y; // 食物的y坐标
 
     public Food(int x, int y) {
         this.x = x;
