@@ -191,16 +191,20 @@ public class GameServer implements Runnable {
             jsonObject1.put("newHeadX", t1[0]);
             jsonObject1.put("newHeadY", t1[1]);
             jsonObject1.put("eat", f1);
+            jsonObject1.put("direction", snake1.getDirection());
             jsonObject1.put("rivalNewHeadX", t2[0]);
             jsonObject1.put("rivalNewHeadY", t2[1]);
             jsonObject1.put("rivalEat", f2);
+            jsonObject1.put("rivalDirection", snake2.getDirection());
             JSONObject jsonObject2 = new JSONObject();
             jsonObject2.put("newHeadX", t2[0]);
             jsonObject2.put("newHeadY", t2[1]);
             jsonObject2.put("eat", f2);
+            jsonObject2.put("direction", snake2.getDirection());
             jsonObject2.put("rivalNewHeadX", t1[0]);
             jsonObject2.put("rivalNewHeadY", t1[1]);
             jsonObject2.put("rivalEat", f1);
+            jsonObject2.put("rivalDirection", snake1.getDirection());
             if(f1 || f2){
                 food = buildFood();
                 jsonObject1.put("newFoodX", food.getX());
