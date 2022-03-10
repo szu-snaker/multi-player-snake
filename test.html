@@ -17,7 +17,8 @@
         <p id="onmessage">onmessage:</p>
         <p id="onclose">onclose:</p>
         <p id="onerror">onerror:</p>
-
+        <br>
+        <p id="send">send:</p>
     </div>
     <script>
         function $(id) {
@@ -30,12 +31,15 @@
             $("connect").innerHTML += "<br>ws://127.0.0.1:9000/ws/"+userId;
             socker.onopen = function () {
                 $('onopen').innerHTML += "<br>  (" +userId +"open)  ";
-                socker.send(JSON.stringify({
+                let str = JSON.stringify({
                     order: 'find'
-                }));
+                });
+                $("send").innerHTML +=  "<br>" + userId + str;
+                socker.send(str);
             }
             socker.onmessage = function (message) {
-                $('onmessage').innerHTML += "<br> " + userId+ "on onmessage:" + JSON.stringify(message);
+                console.log(JSON.stringify(JSON.parse(message.data)));
+                $('onmessage').innerHTML += "<br> " + userId+ "on onmessage:" + (JSON.stringify(JSON.parse(message.data)));
             }
             socker.onclose = function () {
                 $('onclose').innerHTML += "<br>"+ userId+ "on onclose";
