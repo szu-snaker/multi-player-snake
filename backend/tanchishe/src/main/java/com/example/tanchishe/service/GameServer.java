@@ -33,12 +33,12 @@ public class GameServer implements Runnable {
         this.session1 = session1;
         this.session2 = session2;
         // 初始化地图
-        f = new boolean[25][19];
+        f = new boolean[27][20];
         // 游戏中
         playing = true;
         // 玩家的蛇头初始化
         int[] t1 = new int[]{4,1};
-        int[] t2 = new int[]{20,17};
+        int[] t2 = new int[]{22,18};
         LinkedList<int[]> snakeBody1 = new LinkedList<int[]>();
         LinkedList<int[]> snakeBody2 = new LinkedList<int[]>();
         f[t1[0]][t1[1]] = true;
@@ -59,7 +59,7 @@ public class GameServer implements Runnable {
         // 生成食物
         food = buildFood();
         // 如果一开始食物就在蛇头就重新生成
-        while((food.getX() == 4 && food.getY() == 1) || (food.getX() == 20 && food.getY() == 17)){
+        while((food.getX() == 4 && food.getY() == 1) || (food.getX() == 22 && food.getY() == 18)){
             food = buildFood();
         }
         // 发送游戏初始信息给客户端
@@ -100,7 +100,7 @@ public class GameServer implements Runnable {
                 }
             }else if(direction1 == 1){ // P1蛇头朝右
                 t1[0] ++;
-                if(t1[0] == 25){ // 撞墙游戏结束
+                if(t1[0] == 27){ // 撞墙游戏结束
                     try {
                         ganmeOver(false);
                     } catch (IOException e) {
@@ -110,7 +110,7 @@ public class GameServer implements Runnable {
                 }
             }else if(direction1 == 2){ // P1蛇头朝下
                 t1[1] ++;
-                if(t1[1] == 19){ // 撞墙游戏结束
+                if(t1[1] == 20){ // 撞墙游戏结束
                     try {
                         ganmeOver(false);
                     } catch (IOException e) {
@@ -142,7 +142,7 @@ public class GameServer implements Runnable {
                 }
             }else if(direction2 == 1){ // P2蛇头朝右
                 t2[0] ++;
-                if(t2[0] == 25){ // 撞墙游戏结束
+                if(t2[0] == 27){ // 撞墙游戏结束
                     try {
                         ganmeOver(true);
                     } catch (IOException e) {
@@ -152,7 +152,7 @@ public class GameServer implements Runnable {
                 }
             }else if(direction2 == 2){ // P2蛇头朝下
                 t2[1] ++;
-                if(t2[1] == 19){ // 撞墙游戏结束
+                if(t2[1] == 20){ // 撞墙游戏结束
                     try {
                         ganmeOver(true);
                     } catch (IOException e) {
@@ -253,7 +253,7 @@ public class GameServer implements Runnable {
                 e.printStackTrace();
             }
             try {
-                Thread.sleep(1000);
+                Thread.sleep(500);
             } catch (InterruptedException e) {
                 e.printStackTrace();
             }
