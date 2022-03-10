@@ -196,13 +196,12 @@ public class WebSocketServer {
         Thread.sleep(1000);
         // 游戏初始化
         gameServer = new GameServer(webSocketMap.get(rivalId).session, this.session);
-//        threadPoolExecutor.submit(gameServer);
         webSocketMap.get(rivalId).gameServer = gameServer;
         snakeId = 1;
         webSocketMap.get(rivalId).snakeId = 0;
         Thread.sleep(3000);
         // 游戏开始
-        gameServer.run();
+        threadPoolExecutor.execute(gameServer);
     }
 
 }

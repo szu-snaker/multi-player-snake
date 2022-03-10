@@ -292,9 +292,13 @@ public class GameServer implements Runnable {
         JSONObject jsonObject = new JSONObject();
         jsonObject.put("gameOver", "rivalExit");
         if(snakeID == 0){
-            session2.getBasicRemote().sendText(jsonObject.toJSONString());
+            if(session2.isOpen()) {
+                session2.getBasicRemote().sendText(jsonObject.toJSONString());
+            }
         }else{
-            session1.getBasicRemote().sendText(jsonObject.toJSONString());
+            if(session1.isOpen()) {
+                session1.getBasicRemote().sendText(jsonObject.toJSONString());
+            }
         }
         playing = false;
     }
