@@ -19,12 +19,13 @@ Food.prototype.initFood = function(map,xx,yy){
     myFood.style.background = `url(${this.img}) no-repeat center`
     myFood.style.backgroundSize = `${this.width}px ${this.height}px`;
     myFood.style.position = "absolute";
-    this.x = xx || Math.floor(Math.random()* (map.offsetWidth/this.width)) * this.width;
-    this.y = yy || Math.floor(Math.random()* (map.offsetHeight/this.height)) * this.height;
+    this.x = (xx || Math.floor(Math.random()* (map.offsetWidth/this.width)))  * this.width;
+    this.y = (yy || Math.floor(Math.random()* (map.offsetHeight/this.height))) * this.height;
     myFood.style.left = this.x + "px";
     myFood.style.top = this.y +"px";
 
     map.appendChild(myFood);
+    console.log("append food：",this.x,this.y);
 }
 // 移除食物
 Food.prototype.removeDiv = function(){
