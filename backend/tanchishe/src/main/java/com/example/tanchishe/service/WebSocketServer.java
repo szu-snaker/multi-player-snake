@@ -11,7 +11,7 @@ import javax.websocket.server.PathParam;
 import javax.websocket.server.ServerEndpoint;
 import java.io.IOException;
 import java.util.Random;
-import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.*;
 
 /**
  * @Author: pjj
@@ -25,6 +25,10 @@ public class WebSocketServer {
 
     // concurrent包的线程安全Map，用来存放每个客户端对应的MyWebSocket对象。
     private static ConcurrentHashMap<String, WebSocketServer> webSocketMap = new ConcurrentHashMap<String, WebSocketServer>();
+
+    // 存储游戏对战线程的线程池
+    private static ThreadPoolExecutor threadPoolExecutor = new ThreadPoolExecutor(100, 100, 0, TimeUnit.SECONDS,
+                                                                                    new ArrayBlockingQueue<Runnable>(512), new ThreadPoolExecutor.CallerRunsPolicy());
 
     // 匹配中玩家
     private static String ready = "";
@@ -192,6 +196,7 @@ public class WebSocketServer {
         Thread.sleep(1000);
         // 游戏初始化
         gameServer = new GameServer(webSocketMap.get(rivalId).session, this.session);
+//        threadPoolExecutor.submit(gameServer);
         webSocketMap.get(rivalId).gameServer = gameServer;
         snakeId = 1;
         webSocketMap.get(rivalId).snakeId = 0;
