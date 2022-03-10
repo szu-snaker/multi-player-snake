@@ -6,7 +6,9 @@ import com.example.tanchishe.bean.Snake;
 
 import javax.websocket.Session;
 import java.io.IOException;
+import java.util.HashMap;
 import java.util.LinkedList;
+import java.util.Map;
 import java.util.Random;
 
 public class GameServer implements Runnable {
@@ -187,28 +189,34 @@ public class GameServer implements Runnable {
             }else{
                 f2 = true;
             }
+            Map<String, Object> newSnake1 = new HashMap<String, Object>();
+            Map<String, Object> newSnake2 = new HashMap<String, Object>();
+
+            newSnake1.put("newHeadX", t1[0]);
+            newSnake1.put("newHeadY", t1[1]);
+            newSnake1.put("eat", f1);
+            newSnake1.put("direction", snake1.getDirection());
+
+            newSnake2.put("newHeadX", t2[0]);
+            newSnake2.put("newHeadY", t2[1]);
+            newSnake2.put("eat", f2);
+            newSnake2.put("direction", snake2.getDirection());
+
             JSONObject jsonObject1 = new JSONObject();
-            jsonObject1.put("newHeadX", t1[0]);
-            jsonObject1.put("newHeadY", t1[1]);
-            jsonObject1.put("eat", f1);
-            jsonObject1.put("direction", snake1.getDirection());
-            jsonObject1.put("rivalNewHeadX", t2[0]);
-            jsonObject1.put("rivalNewHeadY", t2[1]);
-            jsonObject1.put("rivalEat", f2);
-            jsonObject1.put("rivalDirection", snake2.getDirection());
+            jsonObject1.put("mySnake", newSnake1);
+            jsonObject1.put("rivalSnake", newSnake2);
+
             JSONObject jsonObject2 = new JSONObject();
-            jsonObject2.put("newHeadX", t2[0]);
-            jsonObject2.put("newHeadY", t2[1]);
-            jsonObject2.put("eat", f2);
-            jsonObject2.put("direction", snake2.getDirection());
-            jsonObject2.put("rivalNewHeadX", t1[0]);
-            jsonObject2.put("rivalNewHeadY", t1[1]);
-            jsonObject2.put("rivalEat", f1);
-            jsonObject2.put("rivalDirection", snake1.getDirection());
+            jsonObject2.put("mySnake", newSnake2);
+            jsonObject2.put("rivalSnake", newSnake1);
+
             if(f1 || f2){
+                Map<String, Object> newFood = new HashMap<String, Object>();
                 food = buildFood();
-                jsonObject1.put("newFoodX", food.getX());
-                jsonObject1.put("newFoodY", food.getY());
+                newFood.put("X", food.getX());
+                newFood.put("Y", food.getY());
+                jsonObject1.put("newFood", newFood);
+                jsonObject2.put("newFood", newFood);
             }
             try {
                 session1.getBasicRemote().sendText(jsonObject1.toJSONString());
