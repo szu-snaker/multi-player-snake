@@ -73,7 +73,8 @@ Snake.prototype.refreshSnake = function (map,isMe) {
 Snake.prototype.updateSnake = function (data) {
   console.log("update:", data);
   let newImg = null;
-  if (data.direction) {
+  if (data.direction!=undefined) {
+    console.log("check is Turn ",data.direction);
     let directions = ["up", "right", "down", "left"];
     this.direction = directions[data.direction];
     newImg = Resource.snake[this.direction];
