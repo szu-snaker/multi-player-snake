@@ -10,28 +10,31 @@ import java.util.LinkedList;
  */
 public class Snake {
 
-    LinkedList<int[]> snakeBody = new LinkedList<int[]>();
+    String userName;         // 蛇的玩家ID
     int direction;  // 蛇的朝向
+    LinkedList<int[]> snakeBody = new LinkedList<int[]>();  // 蛇的身体下标数组
 
-    public Snake(LinkedList<int[]> snakeBody, int direction) {
-        this.snakeBody = snakeBody;
+    public Snake(String userName, int direction, LinkedList<int[]> snakeBody) {
+        this.userName = userName;
         this.direction = direction;
+        this.snakeBody = snakeBody;
     }
 
     @Override
     public String toString() {
         return "Snake{" +
-                "snakeBody=" + snakeBody.toString() +
+                "userName=" + userName +
                 ", direction=" + direction +
+                ", snakeBody=" + snakeBody +
                 '}';
     }
 
-    public LinkedList<int[]> getSnakeBody() {
-        return snakeBody;
+    public String getUserName() {
+        return userName;
     }
 
-    public void setSnakeBody(LinkedList<int[]> snakeBody) {
-        this.snakeBody = snakeBody;
+    public void setUserName(String userName) {
+        this.userName = userName;
     }
 
     public int getDirection() {
@@ -40,5 +43,13 @@ public class Snake {
 
     public void setDirection(int direction) {
         this.direction = direction;
+    }
+
+    public LinkedList<int[]> getSnakeBody() {
+        return snakeBody;
+    }
+
+    public void setSnakeBody(LinkedList<int[]> snakeBody) {
+        this.snakeBody = snakeBody;
     }
 }

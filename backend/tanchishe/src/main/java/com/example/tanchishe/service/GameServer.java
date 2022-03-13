@@ -13,242 +13,178 @@ import java.util.Random;
 
 public class GameServer implements Runnable {
 
-    Session session1;   // P1的连接
-    Session session2;   // P2的连接
+    int playerNumber;       // 房间玩家数量
 
-    Snake snake1;       // P1的蛇
-    Snake snake2;       // P2的蛇
+    Session sessions[];      // 与玩家的套接字接口数组
 
-    boolean changeFlag1;// P1的蛇改变方向
-    boolean changeFlag2;// P2的蛇改变方向
+    Snake snakes[];          // 玩家的蛇
 
-    Food food;          // 食物
+    boolean changeFlag[];   // 蛇改变方向
+
+    Food foods[];            // 食物
 
     boolean[][] f;      // 地图是否可行
 
     boolean playing;    // 游戏是否进行
 
-    public GameServer(Session session1, Session session2) throws IOException {
+    public GameServer(int playerNumber, Session[] sessions, String[] userIDs) throws IOException {
+        this.playerNumber = playerNumber;
         // 玩家的连接
-        this.session1 = session1;
-        this.session2 = session2;
+        this.sessions = sessions;
         // 初始化地图
         f = new boolean[27][20];
+        changeFlag = new boolean[playerNumber];
         // 游戏中
         playing = true;
         // 玩家的蛇头初始化
-        int[] t1 = new int[]{4,1};
-        int[] t2 = new int[]{22,18};
-        LinkedList<int[]> snakeBody1 = new LinkedList<int[]>();
-        LinkedList<int[]> snakeBody2 = new LinkedList<int[]>();
-        f[t1[0]][t1[1]] = true;
-        f[t2[0]][t2[1]] = true;
-        snakeBody1.add(t1.clone());
-        snakeBody2.add(t2.clone());
+        int[][] t = new int[][]{{4, 1}, {22, 18}};
+        LinkedList<int[]>[] snakeBody = new LinkedList[playerNumber];
+        for(int i = 0; i < playerNumber; i ++){
+            snakeBody[i] = new LinkedList<int[]>();
+        }
+        for(int i = 0; i < playerNumber; i ++){
+            f[t[i][0]][t[i][1]] = true;
+            snakeBody[i].add(t[i].clone());
+        }
         // 玩家的蛇身初始化
         for(int i = 0; i < 3; i ++){
-            t1[0] --;
-            snakeBody1.add(t1.clone());
-            t2[0] ++;
-            snakeBody2.add(t2.clone());
-            f[t1[0]][t1[1]] = true;
-            f[t2[0]][t2[1]] = true;
+            t[0][0] --;
+            snakeBody[0].add(t[0].clone());
+            t[1][0] ++;
+            snakeBody[1].add(t[1].clone());
+            f[t[0][0]][t[0][1]] = true;
+            f[t[1][0]][t[1][1]] = true;
         }
-        snake1 = new Snake(snakeBody1, 1);
-        snake2 = new Snake(snakeBody2, 3);
+        snakes = new Snake[playerNumber];
+        snakes[0] = new Snake(userIDs[0], 1, snakeBody[0]);
+        snakes[1] = new Snake(userIDs[1], 3, snakeBody[1]);
         // 生成食物
-        food = buildFood();
+        foods = new Food[playerNumber];
+        foods[0] = buildFood();
+        foods[1] = buildFood();
         // 如果一开始食物就在蛇头就重新生成
-        while((food.getX() == 4 && food.getY() == 1) || (food.getX() == 22 && food.getY() == 18)){
-            food = buildFood();
+        for(int i = 0; i < playerNumber; i ++){
+            while((foods[i].getX() == 4 && foods[i].getY() == 1) || (foods[i].getX() == 22 && foods[i].getY() == 18)){
+                foods[i] = buildFood();
+            }
         }
         // 发送游戏初始信息给客户端
-        JSONObject jsonObject1 = new JSONObject();
-        jsonObject1.put("mySnakeInit", snake1);
-        jsonObject1.put("rivalSnakeInit", snake2);
-        jsonObject1.put("food", food);
-        JSONObject jsonObject2 = new JSONObject();
-        jsonObject2.put("mySnakeInit", snake2);
-        jsonObject2.put("rivalSnakeInit", snake1);
-        jsonObject2.put("food", food);
-        session1.getBasicRemote().sendText(jsonObject1.toJSONString());
-        session2.getBasicRemote().sendText(jsonObject2.toJSONString());
+        JSONObject jsonObject = new JSONObject();
+        jsonObject.put("snakes", snakes);
+        jsonObject.put("food", foods);
+        for(int i = 0; i < playerNumber; i ++){
+            sessions[i].getBasicRemote().sendText(jsonObject.toJSONString());
+        }
     }
 
     @Override
     public void run() {
         while(playing){
-            // 获取蛇头朝向
-            LinkedList<int[]> snakeBody1 = snake1.getSnakeBody();
-            int direction1 = snake1.getDirection();
-            int[] t1 = snakeBody1.get(0).clone();
-
-            LinkedList<int[]> snakeBody2 = snake2.getSnakeBody();
-            int direction2 = snake2.getDirection();
-            int[] t2 = snakeBody2.get(0).clone();
-
+            // 获取蛇头下标和朝向
+            LinkedList<int[]>[] snakeBody = new LinkedList[playerNumber];
+            int direction[] = new int[playerNumber];
+            for(int i = 0; i < playerNumber; i ++){
+                snakeBody[i] = snakes[i].getSnakeBody();
+                direction[i] = snakes[i].getDirection();
+            }
+            int[][] t = new int[playerNumber][];
+            for(int i = 0; i < playerNumber; i ++){
+                t[i] = snakeBody[i].get(0).clone();
+            }
             // 更新新的蛇头位置
-            if(direction1 == 0){ // P1蛇头朝上
-                t1[1] --;
-                if(t1[1] < 0){ // 撞墙游戏结束
-                    try {
+            for(int i = 0; i <playerNumber; i ++){
+                if(direction[i] == 0){ // P1蛇头朝上
+                    t[i][1] --;
+                    if(t[i][1] < 0){ // 撞墙游戏结束
+                        try {
+                            ganmeOver(false);
+                        } catch (IOException e) {
+                            e.printStackTrace();
+                        }
+                        break;
+                    }
+                }else if(direction[i] == 1){ // P1蛇头朝右
+                    t[i][0] ++;
+                    if(t[i][0] == 27){ // 撞墙游戏结束
+                        try {
+                            ganmeOver(false);
+                        } catch (IOException e) {
+                            e.printStackTrace();
+                        }
+                        break;
+                    }
+                }else if(direction[i] == 2){ // P1蛇头朝下
+                    t[i][1] ++;
+                    if(t[i][1] == 20){ // 撞墙游戏结束
+                        try {
+                            ganmeOver(false);
+                        } catch (IOException e) {
+                            e.printStackTrace();
+                        }
+                        break;
+                    }
+                }else{ // P1蛇头朝左
+                    t[i][0] --;
+                    if(t[i][0] < 0){ // 撞墙游戏结束
+                        try {
+                            ganmeOver(false);
+                        } catch (IOException e) {
+                            e.printStackTrace();
+                        }
+                        break;
+                    }
+                }
+            }
+            // 推送给客户端的消息
+            JSONObject jsonObject = new JSONObject();
+            Map<String, Object>[] newSnakes = new Map[2];
+            // 判断蛇有没有撞死
+            for(int i = 0; i < playerNumber; i ++) {
+                if (f[t[i][0]][t[i][1]]) { // 蛇头撞到蛇身
+                    try { // 游戏结束
                         ganmeOver(false);
                     } catch (IOException e) {
                         e.printStackTrace();
                     }
                     break;
                 }
-            }else if(direction1 == 1){ // P1蛇头朝右
-                t1[0] ++;
-                if(t1[0] == 27){ // 撞墙游戏结束
-                    try {
-                        ganmeOver(false);
-                    } catch (IOException e) {
-                        e.printStackTrace();
+                // 更新地图状态
+                f[t[i][0]][t[i][1]] = true;
+                newSnakes[i] = new HashMap<String, Object>();
+                // 更新蛇的状态
+                snakes[i].getSnakeBody().addFirst(t[i]);
+                // 蛇的玩家名
+                newSnakes[i].put("playerName", snakes[i].getUserName());
+                // 发送客户端新的蛇头位置
+                newSnakes[i].put("newHeadX", t[i][0]);
+                newSnakes[i].put("newHeadY", t[i][1]);
+                int j = 0;
+                for (; j < playerNumber; j++) {
+                    // 吃到食物
+                    if (t[i][0] == foods[j].getX() && t[i][1] == foods[j].getY()) {
+                        newSnakes[i].put("eat", true);
+                        foods[j] = buildFood();
+                        jsonObject.put("food" + j, foods[j]);
+                        break;
                     }
-                    break;
                 }
-            }else if(direction1 == 2){ // P1蛇头朝下
-                t1[1] ++;
-                if(t1[1] == 20){ // 撞墙游戏结束
-                    try {
-                        ganmeOver(false);
-                    } catch (IOException e) {
-                        e.printStackTrace();
-                    }
-                    break;
+                // 没吃到食物，去掉蛇尾
+                if (j == playerNumber) {
+                    int[] temp = snakes[i].getSnakeBody().removeLast();
+                    f[temp[0]][temp[1]] = false;
                 }
-            }else{ // P1蛇头朝左
-                t1[0] --;
-                if(t1[0] < 0){ // 撞墙游戏结束
-                    try {
-                        ganmeOver(false);
-                    } catch (IOException e) {
-                        e.printStackTrace();
-                    }
-                    break;
+                // 判断蛇有没有改变了朝向
+                if (changeFlag[i]) { // 改变方向则告诉客户端
+                    changeFlag[i] = false;
+                    newSnakes[i].put("direction", snakes[i].getDirection());
                 }
             }
-
-            if(direction2 == 0){ // P2蛇头朝上
-                t2[1] --;
-                if(t2[1] < 0){ // 撞墙游戏结束
-                    try {
-                        ganmeOver(true);
-                    } catch (IOException e) {
-                        e.printStackTrace();
-                    }
-                    break;
-                }
-            }else if(direction2 == 1){ // P2蛇头朝右
-                t2[0] ++;
-                if(t2[0] == 27){ // 撞墙游戏结束
-                    try {
-                        ganmeOver(true);
-                    } catch (IOException e) {
-                        e.printStackTrace();
-                    }
-                    break;
-                }
-            }else if(direction2 == 2){ // P2蛇头朝下
-                t2[1] ++;
-                if(t2[1] == 20){ // 撞墙游戏结束
-                    try {
-                        ganmeOver(true);
-                    } catch (IOException e) {
-                        e.printStackTrace();
-                    }
-                    break;
-                }
-            }else{ // P2蛇头朝左
-                t2[0] --;
-                if(t2[0] < 0){ // 撞墙游戏结束
-                    try {
-                        ganmeOver(true);
-                    } catch (IOException e) {
-                        e.printStackTrace();
-                    }
-                    break;
-                }
-            }
-
-            if(f[t1[0]][t1[1]]){ // P1蛇头撞到蛇身
-                try {
-                    ganmeOver(false);
-                } catch (IOException e) {
-                    e.printStackTrace();
-                }
-                break;
-            }
-            // 更新P1的蛇的状态
-            snake1.getSnakeBody().addFirst(t1);
-            f[t1[0]][t1[1]] = true;
-            boolean f1 = false;
-            // P1的蛇没有吃到食物，保持蛇的原本长度，原本蛇移动要整个数组整体移动 == 旧蛇尾下标去掉
-            if(!(t1[0] == food.getX() && t1[1] == food.getY())){
-                int[] temp = snake1.getSnakeBody().removeLast();
-                f[temp[0]][temp[1]] = false;
-            }else{
-                f1 = true;
-            }
-            if(f[t2[0]][t2[1]]){ // P2蛇头撞到蛇身
-                try {
-                    ganmeOver(true);
-                } catch (IOException e) {
-                    e.printStackTrace();
-                }
-                break;
-            }
-            // 更新P2的蛇的状态
-            snake2.getSnakeBody().addFirst(t2);
-            f[t2[0]][t2[1]] = true;
-            boolean f2 = false;
-            // P1的蛇没有吃到食物，保持蛇的原本长度，原本蛇移动要整个数组整体移动 == 旧蛇尾下标去掉
-            if(!(t2[0] == food.getX() && t2[1] == food.getY())){
-                int[] temp = snake2.getSnakeBody().removeLast();
-                f[temp[0]][temp[1]] = false;
-            }else{
-                f2 = true;
-            }
-            Map<String, Object> newSnake1 = new HashMap<String, Object>();
-            Map<String, Object> newSnake2 = new HashMap<String, Object>();
-            // 新蛇头
-            newSnake1.put("newHeadX", t1[0]);
-            newSnake1.put("newHeadY", t1[1]);
-            if(f1) { // 食到食物则告诉客户端
-                newSnake1.put("eat", f1);
-            }
-            if(changeFlag1) { // 改变方向则告诉客户端
-                changeFlag1 = false;
-                newSnake1.put("direction", snake1.getDirection());
-            }
-            // 新蛇头
-            newSnake2.put("newHeadX", t2[0]);
-            newSnake2.put("newHeadY", t2[1]);
-            if(f2) { // 食到食物则告诉客户端
-                newSnake2.put("eat", f2);
-            }
-            if(changeFlag2) { // 改变方向则告诉客户端
-                changeFlag2 = false;
-                newSnake2.put("direction", snake2.getDirection());
-            }
-            // 封装两条蛇新的状态
-            JSONObject jsonObject1 = new JSONObject();
-            jsonObject1.put("mySnake", newSnake1);
-            jsonObject1.put("rivalSnake", newSnake2);
-
-            JSONObject jsonObject2 = new JSONObject();
-            jsonObject2.put("mySnake", newSnake2);
-            jsonObject2.put("rivalSnake", newSnake1);
-            // 吃到食物就生成新食物并告知客户端
-            if(f1 || f2){
-                food = buildFood();
-                jsonObject1.put("food", food);
-                jsonObject2.put("food", food);
-            }
+            // 封装蛇新的状态
+            jsonObject.put("snakes", newSnakes);
             try { // 发送数据给客户端
-                session1.getBasicRemote().sendText(jsonObject1.toJSONString());
-                session2.getBasicRemote().sendText(jsonObject2.toJSONString());
+                for(int i = 0; i < playerNumber; i ++){
+                    sessions[i].getBasicRemote().sendText(jsonObject.toJSONString());
+                }
             } catch (IOException e) {
                 e.printStackTrace();
             }
@@ -273,11 +209,11 @@ public class GameServer implements Runnable {
         JSONObject jsonObject2 = new JSONObject();
         jsonObject2.put("gameOver", "lose");
         if(flag){
-            session1.getBasicRemote().sendText(jsonObject1.toJSONString());
-            session2.getBasicRemote().sendText(jsonObject2.toJSONString());
+            sessions[0].getBasicRemote().sendText(jsonObject1.toJSONString());
+            sessions[1].getBasicRemote().sendText(jsonObject2.toJSONString());
         }else{
-            session2.getBasicRemote().sendText(jsonObject1.toJSONString());
-            session1.getBasicRemote().sendText(jsonObject2.toJSONString());
+            sessions[1].getBasicRemote().sendText(jsonObject1.toJSONString());
+            sessions[0].getBasicRemote().sendText(jsonObject2.toJSONString());
         }
     }
 
@@ -292,12 +228,12 @@ public class GameServer implements Runnable {
         JSONObject jsonObject = new JSONObject();
         jsonObject.put("gameOver", "rivalExit");
         if(snakeID == 0){
-            if(session2.isOpen()) {
-                session2.getBasicRemote().sendText(jsonObject.toJSONString());
+            if(sessions[1].isOpen()) {
+                sessions[1].getBasicRemote().sendText(jsonObject.toJSONString());
             }
         }else{
-            if(session1.isOpen()) {
-                session1.getBasicRemote().sendText(jsonObject.toJSONString());
+            if(sessions[0].isOpen()) {
+                sessions[0].getBasicRemote().sendText(jsonObject.toJSONString());
             }
         }
         playing = false;
@@ -312,19 +248,10 @@ public class GameServer implements Runnable {
      *	@return: null
      **/
     public void setSnakeDirection(int snakeID, int newDirection){
-        if(snakeID == 0){
-            // 改变P1玩家蛇的朝向
-            synchronized (snake1) {
-                snake1.setDirection(newDirection);
-            }
-            changeFlag1 = true;
-        }else{
-            // 改变P2玩家蛇的朝向
-            synchronized (snake2) {
-                snake2.setDirection(newDirection);
-            }
-            changeFlag2 = true;
+        synchronized (snakes[snakeID]) {
+            snakes[snakeID].setDirection(newDirection);
         }
+        changeFlag[snakeID] = true;
     }
 
     /**
