@@ -132,7 +132,7 @@ public class WebSocketServer {
                         gameServer.setSnakeDirection(snakeId, 3);
                     } else if (order.equals("right")) {
                         gameServer.setSnakeDirection(snakeId, 1);
-                    } else if (order.equals("top")) {
+                    } else if (order.equals("up")) {
                         gameServer.setSnakeDirection(snakeId, 0);
                     } else if (order.equals("down")) {
                         gameServer.setSnakeDirection(snakeId, 2);
