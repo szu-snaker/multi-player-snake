@@ -110,13 +110,13 @@ Game.prototype.connect = function (id) {
     // 正常移动
     else if (Object.hasOwnProperty.call(data, "mySnake")) {
       // console.log("normal command");
-      this.snake.updateSnake(data.mySnake);
+      this.snake.updateSnake(data.mySnake,true);
       this.snake.refreshSnake(this.map,true);
       this.snakes[0].updateSnake(data.rivalSnake);
       this.snakes[0].refreshSnake(this.map);
     }
     else if(Object.hasOwnProperty.call(data,"gameOver")){
-      alert("game is over,you"+data.gameOver);
+      alert("game is over , you "+data.gameOver);
       this.end();
     }
   };

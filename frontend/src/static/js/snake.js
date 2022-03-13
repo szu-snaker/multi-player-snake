@@ -70,7 +70,7 @@ Snake.prototype.refreshSnake = function (map,isMe) {
   });
 };
 // 根据最新数据更新蛇的数据（暂未考虑方向）
-Snake.prototype.updateSnake = function (data) {
+Snake.prototype.updateSnake = function (data,isMe) {
   console.log("update:", data);
   let newImg = null;
   if (data.direction!=undefined) {
@@ -84,6 +84,10 @@ Snake.prototype.updateSnake = function (data) {
   this.body.unshift(newHead);
   if (!data.eat) {
     this.body.pop();
+    if(isMe){
+      document.getElementById("length").innerHTML = this.body.length;      
+    }
+
   }
 
 };
