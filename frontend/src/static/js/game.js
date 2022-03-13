@@ -21,34 +21,46 @@ function Game(map, timer = null) {
     switch (e.keyCode) {
       case 39:
       case 68: {
-        if (this.snake.direction != "left") {
-          this.snake.direction = "right";
+        if (this.snake.direction != "left" &&this.snake.direction != "right") {
+          // this.snake.direction = "right";
+          this.sendDir("right");
         }
         break;
       }
       case 37:
       case 65: {
-        if (this.snake.direction != "right") {
-          this.snake.direction = "left";
+        if (this.snake.direction != "left" &&this.snake.direction != "right") {
+          // this.snake.direction = "left";
+          this.sendDir("left");
         }
         break;
       }
       case 38:
       case 87: {
-        if (this.snake.direction != "down") {
-          this.snake.direction = "up";
+        if (this.snake.direction != "down" && this.snake.direction != "up") {
+          // this.snake.direction = "up";
+          this.sendDir("up");
         }
         break;
       }
       case 40:
       case 83: {
-        if (this.snake.direction != "up") {
-          this.snake.direction = "down";
+        if (this.snake.direction != "down" && this.snake.direction != "up") {
+          // this.snake.direction = "down";
+          this.sendDir("down");
         }
       }
     }
   };
 }
+
+Game.prototype.sendDir = function(direction){
+  this.socket.send(JSON.stringify({
+    order:direction
+  }))
+}
+
+
 
 // 初始化游戏
 Game.prototype.init = function () {

@@ -43,6 +43,7 @@ export default {
     start(){
       this.game = new Game(this.map,this.timer);
       this.game.connect(this.$route.params.id)
+      this.game.bindKey();
       console.log("id"+this.$route.params.id);
     },
 
