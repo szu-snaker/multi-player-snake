@@ -115,6 +115,10 @@ Game.prototype.connect = function (id) {
       this.snakes[0].updateSnake(data.rivalSnake);
       this.snakes[0].refreshSnake(this.map);
     }
+    else if(Object.hasOwnProperty.call(data,"gameOver")){
+      alert("game is over,you"+data.gameOver);
+      this.end();
+    }
   };
 };
 

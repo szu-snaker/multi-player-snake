@@ -38,9 +38,11 @@ export default {
     },
     end(){
       this.game.end();
-
     },
     start(){
+      if(this.game){
+        this.game.end();
+      }
       this.game = new Game(this.map,this.timer);
       this.game.connect(this.$route.params.id)
       this.game.bindKey();
