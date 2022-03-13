@@ -88,7 +88,7 @@ Game.prototype.connect = function (id) {
     if (Object.hasOwnProperty.call(data, "mySnakeInit")) {
       // console.log("initSnake command");
       this.snake.initBody(data.mySnakeInit);
-      this.snake.refreshSnake(this.map);
+      this.snake.refreshSnake(this.map,true);
 
       let rivalSnake = new Snake();
       rivalSnake.initBody(data.rivalSnakeInit);
@@ -99,12 +99,18 @@ Game.prototype.connect = function (id) {
     else if (Object.hasOwnProperty.call(data, "mySnake")) {
       // console.log("normal command");
       this.snake.updateSnake(data.mySnake);
-      this.snake.refreshSnake(this.map);
+      this.snake.refreshSnake(this.map,true);
       this.snakes[0].updateSnake(data.rivalSnake);
       this.snakes[0].refreshSnake(this.map);
     }
   };
 };
+
+Game.prototype.end = function(){
+  this.socket.close();
+  this.clearGame();
+}
+
 
 // 新增一条蛇
 Game.prototype.addSnake = function (snake) {

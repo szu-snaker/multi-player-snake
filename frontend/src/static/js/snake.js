@@ -48,7 +48,7 @@ Snake.prototype.initBody = function (data) {
   }
 };
 // 刷新新的蛇HTML元素
-Snake.prototype.refreshSnake = function (map) {
+Snake.prototype.refreshSnake = function (map,isMe) {
   this.removeDiv(); //去除之前的元素标签，防止重复创建
   //循环创建蛇头和蛇身
   this.body.forEach((element) => {
@@ -61,6 +61,9 @@ Snake.prototype.refreshSnake = function (map) {
     mySnake.style.position = "absolute";
     mySnake.style.left = obj.x * this.width + "px";
     mySnake.style.top = obj.y * this.height + "px";
+    if(isMe){
+      mySnake.classList.add("mySnake");
+    }
     map.appendChild(mySnake);
 
     this.elements.push(mySnake);

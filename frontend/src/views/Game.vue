@@ -2,8 +2,9 @@
   <div id="map" ref="map">
     <h2 class="time">{{translateTime()}}</h2>
     <h2 class="length" id="length">3</h2>
-    <!-- <button class="button restart-button" @click="restart">重新开始</button> -->
-    <button class="button add-button" @click="addMore">加多一条</button>
+    <button class="button add-button" @click="end">结束游戏</button>
+    <button class="button restart-button" @click="start">重新连接</button>
+    <!-- <button class="button add-button" @click="addMore">加多一条</button> -->
     <!-- <button class="button increase-button" @click="increaseSpeed">最新加速</button> -->
     <!-- <button class="button decrease-button" @click="decreaseSpeed">最新减速</button> -->
   </div>
@@ -11,7 +12,6 @@
 
 <script>
 import Game from '@/static/js/game.js';
-import Snake from '../static/js/snake';
 export default {
   name: 'HelloWorld',
   data(){
@@ -19,17 +19,16 @@ export default {
       websocker:null,
       time:0,
       game:null,
+      timer:null,
+      map:null
     }
   },
   mounted(){
-      let timer = setInterval(()=>{
+      this.timer = setInterval(()=>{
         this.time++;
       },1000);
-      let map = document.getElementById("map");
-      this.game = new Game(map,timer);
-      // this.game.init();
-      this.game.connect(this.$route.params.id)
-      console.log("id"+this.$route.params.id);
+      this.map = document.getElementById("map");
+      this.start();
   },
   methods:{
     translateTime(){
@@ -37,36 +36,44 @@ export default {
       let seconds = parseInt(this.time%60);
       return ("0"+minutes).slice(-2) + ":" +  ("0"+seconds).slice(-2) ;
     },
-    
-    // increaseSpeed(){
-    //   this.game.changeSpeed(-1);
-    // },
-    // decreaseSpeed(){
-    //   this.game.changeSpeed(1);
-    // },
-    // restart(){
-    //   this.game.clearGame();
-    //   this.addMore();
-    // },
+    end(){
+      this.game.end();
 
+    },
+    start(){
+      this.game = new Game(this.map,this.timer);
+      this.game.connect(this.$route.params.id)
+      console.log("id"+this.$route.params.id);
+    },
+
+/*
+    increaseSpeed(){
+      this.game.changeSpeed(-1);
+    },
+    decreaseSpeed(){
+      this.game.changeSpeed(1);
+    },
+    restart(){
+      this.game.clearGame();
+      this.addMore();
+    },
     addMore(){
-      this.game.addSnake(new Snake());
-      
-      // this.game = null;
-      // this.time = 0;
-      // let timer = setInterval(()=>{
-      //   this.time++;
-      // },1000);
-      // this.game = new Game(this.$refs.map,timer);
-      // this.game.init();
-      // this.game.bindKey();
-      
+      this.game.addSnake(new Snake());      
+      this.game = null;
+      this.time = 0;
+      let timer = setInterval(()=>{
+        this.time++;
+      },1000);
+      this.game = new Game(this.$refs.map,timer);
+      this.game.init();
+      this.game.bindKey();
     }
+*/    
   }
 }
 </script>
 
-<style scoped>
+<style >
   .length{
     position: absolute;
     left: 310px;
@@ -106,4 +113,8 @@ export default {
     right:300px;
   }
   
+  .mySnake{
+    filter: invert(100%);
+  }
+
 </style>
