@@ -3,14 +3,12 @@ package com.example.tanchishe.service;
 
 import cn.hutool.core.util.StrUtil;
 import com.alibaba.fastjson.JSONObject;
-import com.example.tanchishe.bean.Food;
 import org.springframework.stereotype.Component;
 
 import javax.websocket.*;
 import javax.websocket.server.PathParam;
 import javax.websocket.server.ServerEndpoint;
 import java.io.IOException;
-import java.util.Random;
 import java.util.concurrent.*;
 
 /**
@@ -36,8 +34,8 @@ public class WebSocketServer {
     // 与某个客户端的连接会话，需要通过它来给客户端发送数据
     private Session session;
 
-    // 接收userId
-    private String userId;
+    // 接收userName
+    private String userName;
 
     // 游戏
     private GameServer gameServer;
@@ -81,7 +79,7 @@ public class WebSocketServer {
     @OnOpen
     public void onOpen(Session session, @PathParam("userId") String userId) {
         this.session = session;
-        this.userId = userId;
+        this.userName = userId;
         System.out.println("open connection:" + userId);
         // 将用户ID和它对应的连接存储到map中
         if (webSocketMap.containsKey(userId)) {
@@ -103,8 +101,8 @@ public class WebSocketServer {
     @OnClose
     public void onClose() throws IOException {
         gameServer.gameStop(snakeId);
-        if (webSocketMap.containsKey(userId)) {
-            webSocketMap.remove(userId);
+        if (webSocketMap.containsKey(userName)) {
+            webSocketMap.remove(userName);
         }
     }
 
@@ -183,19 +181,21 @@ public class WebSocketServer {
         String rivalId = "";
         synchronized (ready) {
             if (ready.equals("")) {
-                ready = userId;
+                ready = userName;
                 return;
             } else {
                 rivalId = ready;
                 ready = "";
             }
         }
-        JSONObject jsonObject = new JSONObject();
-        // 游戏准备order
-        jsonObject.put("order", "ready");
-        Thread.sleep(1000);
         // 游戏初始化
-        gameServer = new GameServer(webSocketMap.get(rivalId).session, this.session);
+        Session[] sessions = new Session[2];
+        String[] userNames = new String[2];
+        sessions[0] = webSocketMap.get(rivalId).session;
+        sessions[1] = this.session;
+        userNames[0] = rivalId;
+        userNames[1] = userName;
+        gameServer = new GameServer(2, sessions, userNames);
         webSocketMap.get(rivalId).gameServer = gameServer;
         snakeId = 1;
         webSocketMap.get(rivalId).snakeId = 0;
