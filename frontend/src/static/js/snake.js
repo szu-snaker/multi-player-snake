@@ -47,8 +47,12 @@ Snake.prototype.initBody = function (data) {
     this.body.push(tempBody);
   }
 };
-// 刷新新的蛇HTML元素
+// 刷新新的蛇HTML元素,若长度增加，则清除重构，否则直接移动蛇的元素
 Snake.prototype.refreshSnake = function (map,isMe) {
+  if(this.elements.length == this.body.length){
+    this.refreshSnakeBody();
+    return ;
+  }
   this.removeDiv(); //去除之前的元素标签，防止重复创建
   //循环创建蛇头和蛇身
   this.body.forEach((element) => {
@@ -69,6 +73,21 @@ Snake.prototype.refreshSnake = function (map,isMe) {
     this.elements.push(mySnake);
   });
 };
+
+// 刷新蛇HTML元素,前提条件：需要蛇的body长度和elements元素相同
+Snake.prototype.refreshSnakeBody = function () {
+  //循环移动蛇身
+  for(let i=0;i<this.body.length;i++){
+    let obj = this.body[i];
+    let part = this.elements[i];
+    part.style.background = `url(${obj.img}) no-repeat center`;
+    part.style.left = obj.x * this.width + "px";
+    part.style.top = obj.y * this.height + "px";
+  }
+};
+
+
+
 // 根据最新数据更新蛇的数据（暂未考虑方向）
 Snake.prototype.updateSnake = function (data,isMe) {
   console.log("update:", data);

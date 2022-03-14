@@ -7,7 +7,6 @@ import Snake from "@/static/js/snake.js";
 function Game(map, timer = null) {
   this.food = new Food(); //全局食物
   this.snake = new Snake(); //自己的蛇
-
   this.snakes = []; //别人的蛇
   this.map = map; //游戏地图
   this.timer = timer; //游戏计时
