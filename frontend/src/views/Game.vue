@@ -44,12 +44,12 @@ export default {
       }, 1000);
     },
     end() {
+      this.time = 0;
       this.game.end();
     },
     start() {
       if (this.game) {
         this.game.end();
-
       }
       this.countTime();
       this.game = new Game(this.map, this.timer);
