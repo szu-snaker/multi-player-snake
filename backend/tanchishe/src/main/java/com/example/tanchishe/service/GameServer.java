@@ -154,17 +154,19 @@ public class GameServer implements Runnable {
                 // 更新蛇的状态
                 snakes[i].getSnakeBody().addFirst(t[i]);
                 // 蛇的玩家名
-                newSnakes[i].put("playerName", snakes[i].getUserName());
+                newSnakes[i].put("userName", snakes[i].getUserName());
                 // 发送客户端新的蛇头位置
                 newSnakes[i].put("newHeadX", t[i][0]);
                 newSnakes[i].put("newHeadY", t[i][1]);
                 int j = 0;
+                // 是否有食物被池
+                boolean flag = false;
                 for (; j < playerNumber; j++) {
                     // 吃到食物
                     if (t[i][0] == foods[j].getX() && t[i][1] == foods[j].getY()) {
                         newSnakes[i].put("eat", true);
                         foods[j] = buildFood();
-                        jsonObject.put("food" + j, foods[j]);
+                        flag = true;
                         break;
                     }
                 }
@@ -181,6 +183,8 @@ public class GameServer implements Runnable {
             }
             // 封装蛇新的状态
             jsonObject.put("snakes", newSnakes);
+            // 如果有食物被吃更新食物状态
+            jsonObject.put("food", foods);
             try { // 发送数据给客户端
                 for(int i = 0; i < playerNumber; i ++){
                     sessions[i].getBasicRemote().sendText(jsonObject.toJSONString());
