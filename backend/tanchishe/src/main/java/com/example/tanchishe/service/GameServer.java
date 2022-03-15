@@ -101,7 +101,7 @@ public class GameServer implements Runnable {
                         } catch (IOException e) {
                             e.printStackTrace();
                         }
-                        break;
+                        return ;
                     }
                 }else if(direction[i] == 1){ // P1蛇头朝右
                     t[i][0] ++;
@@ -111,7 +111,7 @@ public class GameServer implements Runnable {
                         } catch (IOException e) {
                             e.printStackTrace();
                         }
-                        break;
+                        return ;
                     }
                 }else if(direction[i] == 2){ // P1蛇头朝下
                     t[i][1] ++;
@@ -121,7 +121,7 @@ public class GameServer implements Runnable {
                         } catch (IOException e) {
                             e.printStackTrace();
                         }
-                        break;
+                        return ;
                     }
                 }else{ // P1蛇头朝左
                     t[i][0] --;
@@ -131,7 +131,7 @@ public class GameServer implements Runnable {
                         } catch (IOException e) {
                             e.printStackTrace();
                         }
-                        break;
+                        return ;
                     }
                 }
             }
