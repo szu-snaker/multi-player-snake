@@ -70,7 +70,7 @@ public class GameServer implements Runnable {
         }
         // 发送游戏初始信息给客户端
         JSONObject jsonObject = new JSONObject();
-        jsonObject.put("snakes", snakes);
+        jsonObject.put("buildSnakes", snakes);
         jsonObject.put("food", foods);
         for(int i = 0; i < playerNumber; i ++){
             sessions[i].getBasicRemote().sendText(jsonObject.toJSONString());
