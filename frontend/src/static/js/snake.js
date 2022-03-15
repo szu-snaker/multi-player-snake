@@ -57,20 +57,23 @@ Snake.prototype.refreshSnake = function (map,isMe) {
   //循环创建蛇头和蛇身
   this.body.forEach((element) => {
     let obj = element;
-    let mySnake = document.createElement("div");
-    mySnake.style.width = this.width + "px";
-    mySnake.style.height = this.height + "px";
-    mySnake.style.background = `url(${obj.img}) no-repeat center`;
-    mySnake.style.backgroundSize = `${this.width}px ${this.height}px`;
-    mySnake.style.position = "absolute";
-    mySnake.style.left = obj.x * this.width + "px";
-    mySnake.style.top = obj.y * this.height + "px";
-    if(isMe){
-      mySnake.classList.add("mySnake");
-    }
-    map.appendChild(mySnake);
+    let snakeBody = document.createElement("div");
+    // snakeBody.style.width = this.width + "px";
+    // snakeBody.style.height = this.height + "px";
+    // snakeBody.style.backgroundSize = `${this.width}px ${this.height}px`;
+    // snakeBody.style.position = "absolute";
 
-    this.elements.push(mySnake);
+    snakeBody.style.background = `url(${obj.img}) no-repeat center`;
+    snakeBody.style.left = obj.x * this.width + "px";
+    snakeBody.style.top = obj.y * this.height + "px";
+
+    snakeBody.classList.add("snake");
+    if(isMe){
+      snakeBody.classList.add("mySnake");
+    }
+    map.appendChild(snakeBody);
+
+    this.elements.push(snakeBody);
   });
 };
 

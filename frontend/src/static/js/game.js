@@ -5,17 +5,22 @@ import Snake from "@/static/js/snake.js";
 
 //游戏构造函数
 function Game(map, timer = null) {
-  this.food = new Food(); //全局食物
-  this.snake = new Snake(); //自己的蛇
-  this.snakes = []; //别人的蛇
+  this.foods = []; //全局食物
+  this.snake = null;
+  this.snakes = []; //蛇群
   this.map = map; //游戏地图
   this.timer = timer; //游戏计时
   this.speed = 200; //游戏速度，0.2s刷新一次
   // this.loopTimer = null;
   this.socket = null;
-  this.id = null;
+  this.user = null;
   // this.snakeTimer = null; //自己控制的蛇的定时器
   // this.snakeTimers = []; //别人的蛇
+  // 两蛇两水果
+  for(let i=0;i<2;i++){
+    this.foods.push(new Food());
+    this.snakes.push(new Snake());
+  }
   this.keyBoardListener = (e) => {
     switch (e.keyCode) {
       case 39:
@@ -69,15 +74,14 @@ Game.prototype.init = function () {
 };
 
 // 连接服务器端
-Game.prototype.connect = function (id) {
+Game.prototype.connect = function (user) {
   if (this.socket) {
     this.socket.close();
   }
-  this.id = id;
-  console.log("Connect to : ", Resource.SocketBaseUrl + "/" + id);
-  this.socket = new WebSocket(Resource.SocketBaseUrl + "/" + id);
+  this.user = user;
+  this.socket = new WebSocket(Resource.SocketBaseUrl + "/" + user);
   this.socket.onopen = () => {
-    console.log(id + "is connect");
+    console.log(user + " is connect");
     this.socket.send(JSON.stringify({ order: "find" }));
   };
 
@@ -90,29 +94,47 @@ Game.prototype.connect = function (id) {
   // 解析并处理对应的数据
   this.socket.onmessage = (data) => {
     data = JSON.parse(data.data);
-    console.log("message:", data);
-    // 初始化：包含食物，初始化新食物,此时也需要更新两条蛇
+    console.log(data);
+    // 初始化：包含食物，初始化新食物。如果之前存在了，就删掉。
     if (Object.hasOwnProperty.call(data, "food")) {
-      this.food.initFood(this.map, data.food.x, data.food.y);
+      for(let i=0;i<data.food.length;i++){
+        this.foods[i].initFood(this.map,data.food[i].x,data.food[i].y);
+      }
     }
     // 初始化两条蛇
-    if (Object.hasOwnProperty.call(data, "mySnakeInit")) {
-      // console.log("initSnake command");
-      this.snake.initBody(data.mySnakeInit);
-      this.snake.refreshSnake(this.map,true);
+    if (Object.hasOwnProperty.call(data, "buildSnakes")) {
+      console.log("initSnake command");
+      for(let i=0;i<data.buildSnakes.length;i++){
+        this.snakes[i].initBody(data.buildSnakes[i]);
+        let isMe = data.buildSnakes[i].userName == this.user;
+        this.snakes[i].refreshSnake(this.map,isMe); 
+        if(isMe){
+          this.snake = this.snakes[i];
+        }
+      }
+      // this.snake.initBody(data.mySnakeInit);
+      // this.snake.refreshSnake(this.map,true);
 
-      let rivalSnake = new Snake();
-      rivalSnake.initBody(data.rivalSnakeInit);
-      this.snakes.push(rivalSnake);
-      this.snakes[0].refreshSnake(this.map);
+      // let rivalSnake = new Snake();
+      // rivalSnake.initBody(data.rivalSnakeInit);
+      // this.snakes.push(rivalSnake);
+      // this.snakes[0].refreshSnake(this.map);
     }
     // 正常移动
-    else if (Object.hasOwnProperty.call(data, "mySnake")) {
+    else if (Object.hasOwnProperty.call(data, "snakes")) {
       // console.log("normal command");
-      this.snake.updateSnake(data.mySnake,true);
-      this.snake.refreshSnake(this.map,true);
-      this.snakes[0].updateSnake(data.rivalSnake);
-      this.snakes[0].refreshSnake(this.map);
+      // this.snake.updateSnake(data.mySnake,true);
+      // this.snake.refreshSnake(this.map,true);
+      // this.snakes[0].updateSnake(data.rivalSnake);
+      // this.snakes[0].refreshSnake(this.map);
+      for(let i=0;i<data.snakes.length;i++){
+        let isMe = data.snakes[i].userName == this.user;
+        this.snakes[i].updateSnake(data.snakes[i],isMe);
+        this.snakes[i].refreshSnake(this.map,isMe);
+        if(isMe){
+          this.snake = this.snakes[i];
+        }
+      }
     }
     else if(Object.hasOwnProperty.call(data,"gameOver")){
       alert("game is over , you "+data.gameOver);
@@ -191,11 +213,12 @@ Game.prototype.bindKey = function () {
 // 清除游戏：蛇+水果+键盘绑定监听器+
 Game.prototype.clearGame = function () {
   clearInterval(this.timer);
-  this.snake.removeDiv();
   this.snakes.forEach((ele) => {
     ele.removeDiv();
   });
-  this.food.removeDiv();
+  for(let i=0;i<this.foods.length;i++){
+    this.foods[i].removeDiv();
+  }
   document.removeEventListener("keydown", this.keyBoardListener, false);
 };
 

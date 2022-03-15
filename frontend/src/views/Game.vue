@@ -125,7 +125,5 @@ export default {
   right: 300px;
 }
 
-.mySnake {
-  filter: invert(100%);
-}
+
 </style>
