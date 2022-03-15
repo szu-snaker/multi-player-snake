@@ -138,6 +138,8 @@ public class GameServer implements Runnable {
             // 推送给客户端的消息
             JSONObject jsonObject = new JSONObject();
             Map<String, Object>[] newSnakes = new Map[2];
+            // 是否有食物被池
+            boolean flag = false;
             // 判断蛇有没有撞死
             for(int i = 0; i < playerNumber; i ++) {
                 if (f[t[i][0]][t[i][1]]) { // 蛇头撞到蛇身
@@ -159,8 +161,6 @@ public class GameServer implements Runnable {
                 newSnakes[i].put("newHeadX", t[i][0]);
                 newSnakes[i].put("newHeadY", t[i][1]);
                 int j = 0;
-                // 是否有食物被池
-                boolean flag = false;
                 for (; j < playerNumber; j++) {
                     // 吃到食物
                     if (t[i][0] == foods[j].getX() && t[i][1] == foods[j].getY()) {
@@ -184,7 +184,9 @@ public class GameServer implements Runnable {
             // 封装蛇新的状态
             jsonObject.put("snakes", newSnakes);
             // 如果有食物被吃更新食物状态
-            jsonObject.put("food", foods);
+            if(flag) {
+                jsonObject.put("food", foods);
+            }
             try { // 发送数据给客户端
                 for(int i = 0; i < playerNumber; i ++){
                     sessions[i].getBasicRemote().sendText(jsonObject.toJSONString());
