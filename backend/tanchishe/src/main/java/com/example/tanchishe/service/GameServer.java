@@ -97,7 +97,7 @@ public class GameServer implements Runnable {
                     t[i][1] --;
                     if(t[i][1] < 0){ // 撞墙游戏结束
                         try {
-                            ganmeOver(false);
+                            ganmeOver(i);
                         } catch (IOException e) {
                             e.printStackTrace();
                         }
@@ -107,7 +107,7 @@ public class GameServer implements Runnable {
                     t[i][0] ++;
                     if(t[i][0] == 27){ // 撞墙游戏结束
                         try {
-                            ganmeOver(false);
+                            ganmeOver(i);
                         } catch (IOException e) {
                             e.printStackTrace();
                         }
@@ -117,7 +117,7 @@ public class GameServer implements Runnable {
                     t[i][1] ++;
                     if(t[i][1] == 20){ // 撞墙游戏结束
                         try {
-                            ganmeOver(false);
+                            ganmeOver(i);
                         } catch (IOException e) {
                             e.printStackTrace();
                         }
@@ -127,7 +127,7 @@ public class GameServer implements Runnable {
                     t[i][0] --;
                     if(t[i][0] < 0){ // 撞墙游戏结束
                         try {
-                            ganmeOver(false);
+                            ganmeOver(i);
                         } catch (IOException e) {
                             e.printStackTrace();
                         }
@@ -138,11 +138,13 @@ public class GameServer implements Runnable {
             // 推送给客户端的消息
             JSONObject jsonObject = new JSONObject();
             Map<String, Object>[] newSnakes = new Map[2];
+            // 是否有食物被池
+            boolean flag = false;
             // 判断蛇有没有撞死
             for(int i = 0; i < playerNumber; i ++) {
                 if (f[t[i][0]][t[i][1]]) { // 蛇头撞到蛇身
                     try { // 游戏结束
-                        ganmeOver(false);
+                        ganmeOver(i);
                     } catch (IOException e) {
                         e.printStackTrace();
                     }
@@ -159,8 +161,6 @@ public class GameServer implements Runnable {
                 newSnakes[i].put("newHeadX", t[i][0]);
                 newSnakes[i].put("newHeadY", t[i][1]);
                 int j = 0;
-                // 是否有食物被池
-                boolean flag = false;
                 for (; j < playerNumber; j++) {
                     // 吃到食物
                     if (t[i][0] == foods[j].getX() && t[i][1] == foods[j].getY()) {
@@ -184,7 +184,9 @@ public class GameServer implements Runnable {
             // 封装蛇新的状态
             jsonObject.put("snakes", newSnakes);
             // 如果有食物被吃更新食物状态
-            jsonObject.put("food", foods);
+            if(flag) {
+                jsonObject.put("food", foods);
+            }
             try { // 发送数据给客户端
                 for(int i = 0; i < playerNumber; i ++){
                     sessions[i].getBasicRemote().sendText(jsonObject.toJSONString());
@@ -207,12 +209,12 @@ public class GameServer implements Runnable {
      *	@Date: 2022/03/08
      *	@return: null
      **/
-    public void ganmeOver(boolean flag) throws IOException {
+    public void ganmeOver(int i) throws IOException {
         JSONObject jsonObject1 = new JSONObject();
         jsonObject1.put("gameOver", "win");
         JSONObject jsonObject2 = new JSONObject();
         jsonObject2.put("gameOver", "lose");
-        if(flag){
+        if(i == 1){
             sessions[0].getBasicRemote().sendText(jsonObject1.toJSONString());
             sessions[1].getBasicRemote().sendText(jsonObject2.toJSONString());
         }else{
