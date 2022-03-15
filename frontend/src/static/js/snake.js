@@ -49,7 +49,28 @@ Snake.prototype.initBody = function (data) {
 };
 // 刷新新的蛇HTML元素,若长度增加，则清除重构，否则直接移动蛇的元素
 Snake.prototype.refreshSnake = function (map,isMe) {
-  if(this.elements.length == this.body.length){
+  if(this.elements.length == this.body.length ){
+    this.refreshSnakeBody();
+    return ;
+  }else if(this.elements.length == this.body.length - 1){//吃到一个新食物
+    let obj = this.body[this.body.length-1];
+    let snakeBody = document.createElement("div");
+    // snakeBody.style.width = this.width + "px";
+    // snakeBody.style.height = this.height + "px";
+    // snakeBody.style.backgroundSize = `${this.width}px ${this.height}px`;
+    // snakeBody.style.position = "absolute";
+
+    snakeBody.style.background = `url(${obj.img}) no-repeat center`;
+    snakeBody.style.left = obj.x * this.width + "px";
+    snakeBody.style.top = obj.y * this.height + "px";
+
+    snakeBody.classList.add("snake");
+    if(isMe){
+      snakeBody.classList.add("mySnake");
+    }
+    map.appendChild(snakeBody);
+    this.elements.push(snakeBody);
+
     this.refreshSnakeBody();
     return ;
   }

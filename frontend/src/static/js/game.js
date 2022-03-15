@@ -210,7 +210,10 @@ Game.prototype.bindKey = function () {
 //     // 需重设定时器
 //   }
 // };
+
+
 // 清除游戏：蛇+水果+键盘绑定监听器+
+
 Game.prototype.clearGame = function () {
   clearInterval(this.timer);
   this.snakes.forEach((ele) => {
