@@ -15,6 +15,8 @@ public class GameServer implements Runnable {
 
     int playerNumber;       // 房间玩家数量
 
+    String[] useNames;         // 玩家name
+
     Session sessions[];      // 与玩家的套接字接口数组
 
     Snake snakes[];          // 玩家的蛇
@@ -27,8 +29,10 @@ public class GameServer implements Runnable {
 
     boolean playing;    // 游戏是否进行
 
-    public GameServer(int playerNumber, Session[] sessions, String[] userIDs) throws IOException {
+    public GameServer(int playerNumber, Session[] sessions, String[] useNames) throws IOException {
         this.playerNumber = playerNumber;
+        // 玩家name
+        this.useNames = useNames;
         // 玩家的连接
         this.sessions = sessions;
         // 初始化地图
@@ -56,8 +60,8 @@ public class GameServer implements Runnable {
             f[t[1][0]][t[1][1]] = true;
         }
         snakes = new Snake[playerNumber];
-        snakes[0] = new Snake(userIDs[0], 1, snakeBody[0]);
-        snakes[1] = new Snake(userIDs[1], 3, snakeBody[1]);
+        snakes[0] = new Snake(useNames[0], 1, snakeBody[0]);
+        snakes[1] = new Snake(useNames[1], 3, snakeBody[1]);
         // 生成食物
         foods = new Food[playerNumber];
         foods[0] = buildFood();
@@ -221,6 +225,8 @@ public class GameServer implements Runnable {
             sessions[1].getBasicRemote().sendText(jsonObject1.toJSONString());
             sessions[0].getBasicRemote().sendText(jsonObject2.toJSONString());
         }
+        WebSocketServer.getWebSocketMap().get(useNames[0]).setGameServer(null);
+        WebSocketServer.getWebSocketMap().get(useNames[1]).setGameServer(null);
     }
 
     /**
