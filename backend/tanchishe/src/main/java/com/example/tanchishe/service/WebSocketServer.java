@@ -43,6 +43,14 @@ public class WebSocketServer {
     // 几号蛇
     private int snakeId;
 
+    public GameServer getGameServer() {
+        return gameServer;
+    }
+
+    public void setGameServer(GameServer gameServer) {
+        this.gameServer = gameServer;
+    }
+
     /**
      * 获取所有的连接
      *
@@ -77,14 +85,13 @@ public class WebSocketServer {
      * @return: null
      **/
     @OnOpen
-    public void onOpen(Session session, @PathParam("userId") String userId) {
+    public void onOpen(Session session, @PathParam("userId") String userId) throws IOException {
         this.session = session;
         this.userName = userId;
-        System.out.println("open connection:" + userId);
         // 将用户ID和它对应的连接存储到map中
         if (webSocketMap.containsKey(userId)) {
-            webSocketMap.remove(userId);
-            webSocketMap.put(userId, this);
+            session.getBasicRemote().sendText("{\"error\":\"the name is exist\"}");
+            onClose();
         } else {
             webSocketMap.put(userId, this);
         }
@@ -100,7 +107,9 @@ public class WebSocketServer {
      **/
     @OnClose
     public void onClose() throws IOException {
-        gameServer.gameStop(snakeId);
+        if(gameServer != null) {
+            gameServer.gameStop(snakeId);
+        }
         if (webSocketMap.containsKey(userName)) {
             webSocketMap.remove(userName);
         }
@@ -118,7 +127,6 @@ public class WebSocketServer {
     public void onMessage(String message, Session session) {
         if (StrUtil.isNotBlank(message)) {
             try {
-                System.out.println("onmessage:" + message);
                 // 存储json信息
                 JSONObject jsonObject = JSONObject.parseObject(message);
                 // 获取指令
