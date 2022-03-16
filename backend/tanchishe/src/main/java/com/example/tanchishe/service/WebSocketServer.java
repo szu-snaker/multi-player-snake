@@ -40,6 +40,9 @@ public class WebSocketServer {
     // 游戏
     private GameServer gameServer;
 
+    // 重复登录
+    private boolean loginAgain = false;
+
     // 几号蛇
     private int snakeId;
 
@@ -91,6 +94,7 @@ public class WebSocketServer {
         // 将用户ID和它对应的连接存储到map中
         if (webSocketMap.containsKey(userId)) {
             session.getBasicRemote().sendText("{\"confirm\":0}");
+            loginAgain = true;
             onClose();
         } else {
             session.getBasicRemote().sendText("{\"confirm\":1}");
@@ -108,11 +112,15 @@ public class WebSocketServer {
      **/
     @OnClose
     public void onClose() throws IOException {
-        if(gameServer != null) {
-            gameServer.gameStop(snakeId);
-        }
-        if (webSocketMap.containsKey(userName)) {
-            webSocketMap.remove(userName);
+        if(!loginAgain) {
+            if (gameServer != null) {
+                gameServer.gameStop(snakeId);
+            } else if (ready.equals(userName)) {
+                ready = "";
+            }
+            if (webSocketMap.containsKey(userName)) {
+                webSocketMap.remove(userName);
+            }
         }
     }
 
@@ -133,7 +141,9 @@ public class WebSocketServer {
                 // 获取指令
                 String order = jsonObject.getString("order");
                 if (order.equals("find")) {
-                    findPlayer();
+                    if(!ready.equals(userName)){
+                        findPlayer();
+                    }
                 } else {
                     if (order.equals("left")) {
                         gameServer.setSnakeDirection(snakeId, 3);
