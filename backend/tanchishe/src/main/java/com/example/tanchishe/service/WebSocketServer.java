@@ -90,9 +90,10 @@ public class WebSocketServer {
         this.userName = userId;
         // 将用户ID和它对应的连接存储到map中
         if (webSocketMap.containsKey(userId)) {
-            session.getBasicRemote().sendText("{\"error\":\"the name is exist\"}");
+            session.getBasicRemote().sendText("{\"confirm\":0}");
             onClose();
         } else {
+            session.getBasicRemote().sendText("{\"confirm\":1}");
             webSocketMap.put(userId, this);
         }
     }
