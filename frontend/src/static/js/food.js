@@ -31,6 +31,7 @@ Food.prototype.initFood = function(map,xx,yy){
 Food.prototype.removeDiv = function(){
     if(this.div){//如果先前存在
         this.div.parentNode.removeChild(this.div);
+        this.div = null;
     }
 }
 

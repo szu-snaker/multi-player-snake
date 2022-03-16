@@ -29,6 +29,18 @@ function Snake(id, xx, yy, width, height, direction) {
     // },
   ];
 }
+
+Snake.prototype.setName = function (map) {
+  if (!this.userNameDOM) {
+    this.userNameDOM = document.createElement("p");
+    this.userNameDOM.classList.add("name");
+    this.userNameDOM.style.left = (this.body[0].x - 0.5)* this.width + "px";
+    this.userNameDOM.style.top = (this.body[0].y - 0.8) * this.height + "px";
+    this.userNameDOM.innerText = this.userName;
+    map.appendChild(this.userNameDOM);
+  }
+};
+
 Snake.prototype.initBody = function (data) {
   let directions = ["up", "right", "down", "left"];
   this.direction = directions[data.direction];
@@ -46,14 +58,17 @@ Snake.prototype.initBody = function (data) {
     };
     this.body.push(tempBody);
   }
+  this.userName = data.userName;
 };
 // 刷新新的蛇HTML元素,若长度增加，则清除重构，否则直接移动蛇的元素
-Snake.prototype.refreshSnake = function (map,isMe) {
-  if(this.elements.length == this.body.length ){
+Snake.prototype.refreshSnake = function (map, isMe) {
+  if (this.elements.length == this.body.length) {
+    //单纯移动
     this.refreshSnakeBody();
-    return ;
-  }else if(this.elements.length == this.body.length - 1){//吃到一个新食物
-    let obj = this.body[this.body.length-1];
+    return;
+  } else if (this.elements.length == this.body.length - 1) {
+    //吃到一个新食物
+    let obj = this.body[this.body.length - 1];
     let snakeBody = document.createElement("div");
     // snakeBody.style.width = this.width + "px";
     // snakeBody.style.height = this.height + "px";
@@ -65,14 +80,14 @@ Snake.prototype.refreshSnake = function (map,isMe) {
     snakeBody.style.top = obj.y * this.height + "px";
 
     snakeBody.classList.add("snake");
-    if(isMe){
+    if (isMe) {
       snakeBody.classList.add("mySnake");
     }
     map.appendChild(snakeBody);
     this.elements.push(snakeBody);
 
     this.refreshSnakeBody();
-    return ;
+    return;
   }
   this.removeDiv(); //去除之前的元素标签，防止重复创建
   //循环创建蛇头和蛇身
@@ -89,50 +104,56 @@ Snake.prototype.refreshSnake = function (map,isMe) {
     snakeBody.style.top = obj.y * this.height + "px";
 
     snakeBody.classList.add("snake");
-    if(isMe){
+    if (isMe) {
       snakeBody.classList.add("mySnake");
     }
     map.appendChild(snakeBody);
-
     this.elements.push(snakeBody);
   });
+  this.setName(map);
+
 };
 
 // 刷新蛇HTML元素,前提条件：需要蛇的body长度和elements元素相同
 Snake.prototype.refreshSnakeBody = function () {
   //循环移动蛇身
-  for(let i=0;i<this.body.length;i++){
+  for (let i = 0; i < this.body.length; i++) {
     let obj = this.body[i];
     let part = this.elements[i];
     part.style.background = `url(${obj.img}) no-repeat center`;
     part.style.left = obj.x * this.width + "px";
     part.style.top = obj.y * this.height + "px";
   }
+  // 移动名字
+  if (this.userNameDOM) {
+    this.userNameDOM.style.left = (this.body[0].x - 0.5)* this.width + "px";
+    this.userNameDOM.style.top = (this.body[0].y - 0.8) * this.height + "px";
+  }
 };
 
-
-
 // 根据最新数据更新蛇的数据（暂未考虑方向）
-Snake.prototype.updateSnake = function (data,isMe) {
+Snake.prototype.updateSnake = function (data, isMe) {
   console.log("update:", data);
   let newImg = null;
-  if (data.direction!=undefined) {
-    console.log("check is Turn ",data.direction);
+  if (data.direction != undefined) {
+    console.log("check is Turn ", data.direction);
     let directions = ["up", "right", "down", "left"];
     this.direction = directions[data.direction];
     newImg = Resource.snake[this.direction];
   }
-  let newHead = { x: data.newHeadX, y: data.newHeadY, img: newImg || this.body[0].img };
+  let newHead = {
+    x: data.newHeadX,
+    y: data.newHeadY,
+    img: newImg || this.body[0].img,
+  };
   this.body[0].img = this.body[1].img;
   this.body.unshift(newHead);
   if (!data.eat) {
     this.body.pop();
-    if(isMe){
-      document.getElementById("length").innerHTML = this.body.length;      
+    if (isMe) {
+      document.getElementById("length").innerHTML = this.body.length;
     }
-
   }
-
 };
 /*
 // 蛇的移动
@@ -260,5 +281,10 @@ Snake.prototype.removeDiv = function () {
     this.elements[i].parentNode.removeChild(this.elements[i]);
   }
   this.elements.length = 0;
+  if(this.userNameDOM){
+    this.userNameDOM.parentNode.removeChild(this.userNameDOM);
+    this.userNameDOM = null;
+  }
 };
+
 export default Snake;

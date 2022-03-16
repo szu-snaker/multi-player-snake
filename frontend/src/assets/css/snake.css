@@ -7,5 +7,16 @@
     width:30px;
     height: 30px;
     background-size: 30px 30px;
-    transition: all 1.2s;
+    transition: all 0.8s;
+}
+
+.name{
+    position: absolute;
+    display: block;
+    width: 100px;
+    height: 25px;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    transition: all 0.8s;
+    opacity: 0.88;
 }
