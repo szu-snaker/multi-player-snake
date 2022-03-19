@@ -1,5 +1,5 @@
 import Resource from "@/static/js/Resource";
-
+import Cloud from "@/static/js/cloud.js";
 import Food from "@/static/js/food.js";
 import Snake from "@/static/js/snake.js";
 
@@ -14,12 +14,16 @@ function Game(map, timer = null) {
   // this.loopTimer = null;
   this.socket = null;
   this.user = null;
+  this.clouds = [];
   // this.snakeTimer = null; //自己控制的蛇的定时器
   // this.snakeTimers = []; //别人的蛇
   // 两蛇两水果
   for (let i = 0; i < 2; i++) {
     this.foods.push(new Food());
     this.snakes.push(new Snake());
+    this.clouds.push(new Cloud());
+    this.clouds[i].initCloud(this.map);
+
   }
   this.keyBoardListener = (e) => {
     switch (e.keyCode) {
@@ -118,7 +122,11 @@ Game.prototype.connect = function (user) {
     if (Object.hasOwnProperty.call(data, "food")) {
       for (let i = 0; i < data.food.length; i++) {
         this.foods[i].initFood(this.map, data.food[i].x, data.food[i].y);
+        if(Math.random()>0.5){
+          this.clouds[i].movingTo(data.food[i].x*30 - this.clouds[i].width, data.food[i].y*30 - this.clouds[i].height)
+        }
       }
+      
     }
     // 初始化两条蛇
     if (Object.hasOwnProperty.call(data, "buildSnakes")) {
@@ -142,6 +150,9 @@ Game.prototype.connect = function (user) {
         this.snakes[i].refreshSnake(this.map, isMe);
         if (isMe) {
           this.snake = this.snakes[i];
+        }
+        if(Math.random()>0.8){
+          this.clouds[i].movingTo(data.snakes[i].newHeadX * 30 - this.clouds[i].width, data.snakes[i].newHeadY*30 - this.clouds[i].height)
         }
       }
     } else if (Object.hasOwnProperty.call(data, "gameOver")) {

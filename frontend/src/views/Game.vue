@@ -4,6 +4,7 @@
     <h2 class="length" id="length">3</h2>
     <button class="button add-button" @click="end">结束游戏</button>
     <button class="button restart-button" @click="start">重新连接</button>
+    
     <!-- <button class="button add-button" @click="addMore">加多一条</button> -->
     <!-- <button class="button increase-button" @click="increaseSpeed">最新加速</button> -->
     <!-- <button class="button decrease-button" @click="decreaseSpeed">最新减速</button> -->
