@@ -23,7 +23,6 @@ Food.prototype.initFood = function(map,xx,yy){
     this.y = (yy || Math.floor(Math.random()* (map.offsetHeight/this.height))) * this.height;
     myFood.style.left = this.x + "px";
     myFood.style.top = this.y +"px";
-
     map.appendChild(myFood);
     console.log("append food：",this.x,this.y);
 }

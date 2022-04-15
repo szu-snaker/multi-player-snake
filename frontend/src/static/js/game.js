@@ -23,14 +23,12 @@ function Game(map, timer = null) {
     this.snakes.push(new Snake());
     this.clouds.push(new Cloud());
     this.clouds[i].initCloud(this.map);
-
   }
   this.keyBoardListener = (e) => {
     switch (e.keyCode) {
       case 39:
       case 68: {
         if (this.snake.direction != "left" && this.snake.direction != "right") {
-          // this.snake.direction = "right";
           this.sendDir("right");
         }
         break;
@@ -60,6 +58,61 @@ function Game(map, timer = null) {
       }
     }
   };
+  this.touchEventListener = ()=>{
+    let box = document.querySelector('body') // 监听对象
+    let startDistanceX = '' // 触摸开始X轴位置
+    let startDistanceY = '' // 触摸开始Y轴位置
+    let endDistanceX = '' // 触摸结束X轴位置
+    let endDistanceY = '' // 触摸结束Y轴位置
+    let moveDistanceX = '' // 触摸移动X轴距离
+    let moveDistanceY = '' // 触摸移动Y轴距离
+    box.addEventListener("touchstart", (e) => {
+        console.log("1");
+        startDistanceX = e.touches[0].screenX
+        startDistanceY = e.touches[0].screenY
+    })
+    box.addEventListener("touchend", (e) => {
+        console.log("2");
+        endDistanceX = e.changedTouches[0].screenX
+        endDistanceY = e.changedTouches[0].screenY
+        moveDistanceX = startDistanceX - endDistanceX
+        moveDistanceY = startDistanceY - endDistanceY
+        console.log(moveDistanceX, moveDistanceY)
+        // 判断滑动距离超过40 且 时间小于500毫秒
+        if ((Math.abs(moveDistanceX) > 40 || Math.abs(moveDistanceY) > 40) ) {
+            // 判断X轴移动的距离是否大于Y轴移动的距离
+            if (Math.abs(moveDistanceX) > Math.abs(moveDistanceY)) {
+              // 左右
+              if(moveDistanceX < 0){
+                if (this.snake.direction != "left" && this.snake.direction != "right") {
+                  this.sendDir("right");
+                }
+              }else if(moveDistanceX > 0){
+                if (this.snake.direction != "left" && this.snake.direction != "right") {
+                  // this.snake.direction = "left";
+                  this.sendDir("left");
+                }
+              }
+            } else {
+                // 上下
+                console.log(moveDistanceY > 0 ? '上' : '下')
+                if(moveDistanceY > 0){
+                  if (this.snake.direction != "down" && this.snake.direction != "up") {
+                    // this.snake.direction = "up";
+                    this.sendDir("up");
+                  }
+                }else if(moveDistanceY < 0){
+                  if (this.snake.direction != "down" && this.snake.direction != "up") {
+                    // this.snake.direction = "down";
+                    this.sendDir("down");
+                  }
+                }
+            }
+        }
+    })
+  }
+  this.touchEventListener();
+  
 }
 
 Game.prototype.sendDir = function (direction) {
@@ -78,6 +131,9 @@ Game.prototype.init = function () {
   // this.loop(this.food, this.map);
   this.bindKey();
 };
+
+
+
 
 // 连接服务器端
 Game.prototype.connect = function (user) {
@@ -126,7 +182,6 @@ Game.prototype.connect = function (user) {
           this.clouds[i].movingTo(data.food[i].x*30 - this.clouds[i].width, data.food[i].y*30 - this.clouds[i].height)
         }
       }
-      
     }
     // 初始化两条蛇
     if (Object.hasOwnProperty.call(data, "buildSnakes")) {
